@@ -1,0 +1,333 @@
+[
+  {
+    "id": 173436839,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8967444,
+    "longitude": 75.8451181
+  },
+  {
+    "id": 243866000,
+    "name": "Ghawaddi Bus Stop",
+    "latitude": 30.7795486,
+    "longitude": 75.8910720
+  },
+  {
+    "id": 243866068,
+    "name": "Bhutta Bus Stop",
+    "latitude": 30.7658111,
+    "longitude": 75.9133202
+  },
+  {
+    "id": 243866072,
+    "name": "Bhutta Bus Stop",
+    "latitude": 30.7635647,
+    "longitude": 75.9169137
+  },
+  {
+    "id": 395134991,
+    "name": "Post Office",
+    "latitude": 30.9030918,
+    "longitude": 75.8373725
+  },
+  {
+    "id": 919687909,
+    "name": "Bus Stop",
+    "latitude": 30.8695685,
+    "longitude": 75.8592769
+  },
+  {
+    "id": 928479041,
+    "name": "Dhaul Khurd Bus Stop",
+    "latitude": 30.6797705,
+    "longitude": 75.9488350
+  },
+  {
+    "id": 928479268,
+    "name": "Dhaul Khurd Bus Stop",
+    "latitude": 30.6776156,
+    "longitude": 75.9497727
+  },
+  {
+    "id": 928527403,
+    "name": "Zirakh Main Gate Bus Stop",
+    "latitude": 30.7007897,
+    "longitude": 75.9519209
+  },
+  {
+    "id": 928535162,
+    "name": "Rara Sahib Bus Stop",
+    "latitude": 30.7277785,
+    "longitude": 75.9444462
+  },
+  {
+    "id": 929011133,
+    "name": "Rara Sahib Bus Stop",
+    "latitude": 30.7277260,
+    "longitude": 75.9447861
+  },
+  {
+    "id": 929011150,
+    "name": "Rara Sahib Bus Stop",
+    "latitude": 30.7276260,
+    "longitude": 75.9444849
+  },
+  {
+    "id": 929037065,
+    "name": "Katahri Bus Stop",
+    "latitude": 30.7402903,
+    "longitude": 75.9431089
+  },
+  {
+    "id": 929037077,
+    "name": "Lapran Bus Stand",
+    "latitude": 30.7520424,
+    "longitude": 75.9310633
+  },
+  {
+    "id": 929037082,
+    "name": "Bhutta Bus Stop",
+    "latitude": 30.7658126,
+    "longitude": 75.9165842
+  },
+  {
+    "id": 939126404,
+    "name": "Bus Stand",
+    "latitude": 30.8661750,
+    "longitude": 75.9230204
+  },
+  {
+    "id": 968815923,
+    "name": "Bus Stand",
+    "latitude": 30.7824891,
+    "longitude": 75.9809293
+  },
+  {
+    "id": 1323317771,
+    "name": "Bus Stop",
+    "latitude": 30.8449185,
+    "longitude": 75.6726176
+  },
+  {
+    "id": 1411826931,
+    "name": "Dehlon",
+    "latitude": 30.7451503,
+    "longitude": 75.8500471
+  },
+  {
+    "id": 1450049532,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.6480692,
+    "longitude": 75.5883312
+  },
+  {
+    "id": 1473014521,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8944854,
+    "longitude": 75.8108440
+  },
+  {
+    "id": 1862776349,
+    "name": "Samrala Bus Stop",
+    "latitude": 30.8372967,
+    "longitude": 76.1873198
+  },
+  {
+    "id": 2373011788,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.7040099,
+    "longitude": 76.2752194
+  },
+  {
+    "id": 2415727359,
+    "name": "Machiwara Bus Stop",
+    "latitude": 30.9120400,
+    "longitude": 76.2018890
+  },
+  {
+    "id": 2466218745,
+    "name": "Bus Stop",
+    "latitude": 30.7132198,
+    "longitude": 75.6783405
+  },
+  {
+    "id": 2586706575,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.6485703,
+    "longitude": 75.5887276
+  },
+  {
+    "id": 2592472226,
+    "name": "Roomi",
+    "latitude": 30.7292829,
+    "longitude": 75.5128969
+  },
+  {
+    "id": 2597911630,
+    "name": "Bus Stand",
+    "latitude": 30.8118392,
+    "longitude": 75.4768418
+  },
+  {
+    "id": 2613215755,
+    "name": "Bus Stand",
+    "latitude": 30.6332317,
+    "longitude": 75.5405935
+  },
+  {
+    "id": 2613215756,
+    "name": "Bus Stand",
+    "latitude": 30.6310088,
+    "longitude": 75.5406551
+  },
+  {
+    "id": 2614458404,
+    "name": "Bus Stand",
+    "latitude": 30.6547450,
+    "longitude": 75.5424958
+  },
+  {
+    "id": 2673138588,
+    "name": "Raikot Adda",
+    "latitude": 30.7862937,
+    "longitude": 75.4791502
+  },
+  {
+    "id": 2694679783,
+    "name": "Bus Stop",
+    "latitude": 30.8672982,
+    "longitude": 75.5855096
+  },
+  {
+    "id": 3300557204,
+    "name": "Sareinh Bus Stop",
+    "latitude": 30.7961170,
+    "longitude": 75.8702492
+  },
+  {
+    "id": 4335029208,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8673476,
+    "longitude": 76.0049538
+  },
+  {
+    "id": 4335055096,
+    "name": "Preet Palace Bus Stop",
+    "latitude": 30.8894003,
+    "longitude": 75.8497266
+  },
+  {
+    "id": 4368257595,
+    "name": "Samrala Bus Stand",
+    "latitude": 30.8370344,
+    "longitude": 76.1875629
+  },
+  {
+    "id": 4594067195,
+    "name": "Indo Canadian",
+    "latitude": 30.8817231,
+    "longitude": 75.8946661
+  },
+  {
+    "id": 4637404140,
+    "name": "Dugri Road",
+    "latitude": 30.8871890,
+    "longitude": 75.8491005
+  },
+  {
+    "id": 9802954702,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9381521,
+    "longitude": 75.7486632
+  },
+  {
+    "id": 9802954709,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9390880,
+    "longitude": 75.7490940
+  },
+  {
+    "id": 9802954772,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9139080,
+    "longitude": 75.7510535
+  },
+  {
+    "id": 9802954773,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9133706,
+    "longitude": 75.7509006
+  },
+  {
+    "id": 10151270641,
+    "name": "Zirakh Bus Stop",
+    "latitude": 30.6958356,
+    "longitude": 75.9502977
+  },
+  {
+    "id": 12502778374,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9010948,
+    "longitude": 75.9095227
+  },
+  {
+    "id": 12502778375,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9007685,
+    "longitude": 75.9098539
+  },
+  {
+    "id": 12502778376,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8962004,
+    "longitude": 75.9204787
+  },
+  {
+    "id": 12502778377,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8961581,
+    "longitude": 75.9202306
+  },
+  {
+    "id": 12502778378,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9107651,
+    "longitude": 75.8798495
+  },
+  {
+    "id": 12502778379,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.9104561,
+    "longitude": 75.8800142
+  },
+  {
+    "id": 12502778380,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8675113,
+    "longitude": 76.0050485
+  },
+  {
+    "id": 13446088192,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8448697,
+    "longitude": 76.1783669
+  },
+  {
+    "id": 13446088193,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8444058,
+    "longitude": 76.1783894
+  },
+  {
+    "id": 13446088199,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8442998,
+    "longitude": 76.1681118
+  },
+  {
+    "id": 13446088200,
+    "name": "Unnamed Bus Stop",
+    "latitude": 30.8438025,
+    "longitude": 76.1678556
+  }
+
+]

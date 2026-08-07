@@ -1,0 +1,32 @@
+[
+  {
+    "id": 615901605,
+    "name": "Uggi Adda",
+    "latitude": 31.2147881,
+    "longitude": 75.4231873
+  },
+  {
+    "id": 620379042,
+    "name": "Unnamed Bus Stop",
+    "latitude": 31.2142975,
+    "longitude": 75.4243054
+  },
+  {
+    "id": 620379043,
+    "name": "Unnamed Bus Stop",
+    "latitude": 31.2123015,
+    "longitude": 75.4330766
+  },
+  {
+    "id": 4247890896,
+    "name": "Unnamed Bus Stop",
+    "latitude": 31.1640437,
+    "longitude": 75.6485893
+  },
+  {
+    "id": 13423691471,
+    "name": "Unnamed Bus Stop",
+    "latitude": 31.0620474,
+    "longitude": 75.5184176
+  }
+]

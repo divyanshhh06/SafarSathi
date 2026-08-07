@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1491429119,
+    "name": "Patiala Bus Stand",
+    "city": "Patiala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.3289973,
+    "longitude": 76.3864536,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "wheelchairAccessible": null,
+    "shelter": null,
+    "bench": null
+  },
+  {
+    "id": 3431049783,
+    "name": "Bahadurgarh Bus Stop",
+    "city": "Patiala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.3690385,
+    "longitude": 76.4722026,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "wheelchairAccessible": null,
+    "shelter": null,
+    "bench": null
+  },
+  {
+    "id": 4391047891,
+    "name": "Unnamed Bus Stop",
+    "city": "Patiala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.4660507,
+    "longitude": 76.7275192,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "wheelchairAccessible": null,
+    "shelter": null,
+    "bench": null
+  },
+  {
+    "id": 4391121189,
+    "name": "Local Bus Stop",
+    "city": "Patiala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.5188980,
+    "longitude": 76.7230678,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "wheelchairAccessible": null,
+    "shelter": null,
+    "bench": null
+  },
+  {
+    "id": 12629680581,
+    "name": "Aam Aadmi Bus Stand Pasiana",
+    "city": "Patiala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.3045629,
+    "longitude": 76.3192565,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "wheelchairAccessible": null,
+    "shelter": null,
+    "bench": null
+  }
+]

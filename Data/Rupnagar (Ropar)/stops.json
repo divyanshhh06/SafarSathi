@@ -1,0 +1,93 @@
+[
+  {
+    "id": 5770208537,
+    "name": "Bharatgarh",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.0985695,
+    "longitude": 76.6138100,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208541,
+    "name": "Ghanauli",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.0230490,
+    "longitude": 76.5925590,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208543,
+    "name": "Malikpur",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9981662,
+    "longitude": 76.5581008,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208548,
+    "name": "Roopnagar",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9750189,
+    "longitude": 76.5351444,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208549,
+    "name": "Unnamed Bus Stop",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9451237,
+    "longitude": 76.5337349,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208550,
+    "name": "Rangeelpur",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9194973,
+    "longitude": 76.5426303,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  },
+  {
+    "id": 5770208788,
+    "name": "Kiratpur Sahib",
+    "city": "Rupnagar",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.1831546,
+    "longitude": 76.5690119,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": true,
+    "shelter": true
+  }
+]

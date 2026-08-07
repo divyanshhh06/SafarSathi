@@ -1,0 +1,189 @@
+[
+  {
+    "id": 1481054678,
+    "name": "Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0559967,
+    "longitude": 75.9299199,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1481075110,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0600206,
+    "longitude": 75.9297132,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1481081875,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0595840,
+    "longitude": 75.9301927,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1481150243,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0896447,
+    "longitude": 75.9329905,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1481155250,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.1270251,
+    "longitude": 75.9214889,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1481167840,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.1901660,
+    "longitude": 75.8785414,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 1491114605,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.2172269,
+    "longitude": 75.9608394,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 2615926545,
+    "name": "Fountain Chowk",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.1335184,
+    "longitude": 75.8034693,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 4683675146,
+    "name": "Haryau",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 29.9609995,
+    "longitude": 75.7096423,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 4683679834,
+    "name": "Haryau Junction Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 29.9624734,
+    "longitude": 75.7036816,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 4683680163,
+    "name": "Haryau",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 29.9668362,
+    "longitude": 75.7062976,
+    "type": "bus_stop",
+    "publicTransport": false
+  },
+  {
+    "id": 11980415416,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.1332875,
+    "longitude": 75.9172045,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 11980415417,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.1335143,
+    "longitude": 75.9166124,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 11980417797,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0829188,
+    "longitude": 75.9680766,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 11980417798,
+    "name": "Unnamed Bus Stop",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.0826527,
+    "longitude": 75.9677785,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 13415956764,
+    "name": "Bus Stop-2",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.2160296,
+    "longitude": 75.7005414,
+    "type": "bus_stop",
+    "publicTransport": true
+  },
+  {
+    "id": 13415956765,
+    "name": "Bus Stop-1",
+    "city": "Sangrur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.2145300,
+    "longitude": 75.6992527,
+    "type": "bus_stop",
+    "publicTransport": true
+  }
+]

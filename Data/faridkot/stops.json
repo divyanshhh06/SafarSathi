@@ -1,0 +1,15 @@
+[
+  {
+    "id": 13279372510,
+    "name": "Unnamed Bus Stop",
+    "city": "Faridkot",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.3910159,
+    "longitude": 74.8972571,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  }
+]

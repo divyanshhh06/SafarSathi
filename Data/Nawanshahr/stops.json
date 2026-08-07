@@ -1,0 +1,54 @@
+[
+  {
+    "id": 13372486973,
+    "name": "Unnamed Bus Stop",
+    "city": "Nawanshahr",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.1016985,
+    "longitude": 76.1844701,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 13372486974,
+    "name": "Unnamed Bus Stop",
+    "city": "Nawanshahr",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.1024408,
+    "longitude": 76.1836859,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 13384079326,
+    "name": "Unnamed Bus Stop",
+    "city": "Nawanshahr",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.1964908,
+    "longitude": 75.9262549,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 13384079327,
+    "name": "Unnamed Bus Stop",
+    "city": "Nawanshahr",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.1969407,
+    "longitude": 75.9259410,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  }
+]

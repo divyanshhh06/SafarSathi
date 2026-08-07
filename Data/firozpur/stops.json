@@ -1,0 +1,15 @@
+[
+  {
+    "id": 387403984,
+    "name": "Khaiwala Adda",
+    "city": "Firozpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9595839,
+    "longitude": 74.6057495,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  }
+]

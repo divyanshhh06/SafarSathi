@@ -1,0 +1,28 @@
+[
+  {
+    "id": 9902868572,
+    "name": "Naushera Khurd",
+    "city": "Pathankot",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 32.4038272,
+    "longitude": 75.9128275,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": true
+  },
+  {
+    "id": 11104524835,
+    "name": "Bus to Dharamshala Platform 13",
+    "city": "Pathankot",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 32.2746968,
+    "longitude": 75.6426405,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": true,
+    "shelter": true
+  }
+]

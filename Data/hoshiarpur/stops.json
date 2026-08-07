@@ -1,0 +1,93 @@
+[
+  {
+    "id": 250983057,
+    "name": "Bus Stand Hoshiarpur",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.5329996,
+    "longitude": 75.9029134,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 1328106796,
+    "name": "Mehtiana",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.3780669,
+    "longitude": 75.8233811,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 1328110479,
+    "name": "Dosadka",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.5791038,
+    "longitude": 75.8056532,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 1328110480,
+    "name": "Bullowal Bus Stop",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.5913207,
+    "longitude": 75.7786092,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 3531019943,
+    "name": "Bus Stop Village Sakrala",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.6759609,
+    "longitude": 75.7009289,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 3531019947,
+    "name": "Village Dhuriyan and Jakhana",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.6825253,
+    "longitude": 75.7453880,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 4414025379,
+    "name": "Unnamed Bus Stop",
+    "city": "Hoshiarpur",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.6751538,
+    "longitude": 75.6463742,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1331289410,
+    "name": "Muktsar",
+    "latitude": 30.6026105,
+    "longitude": 74.2614031
+  },
+  {
+    "id": 2580674685,
+    "name": "Amarpura",
+    "latitude": 30.0355129,
+    "longitude": 74.2033940
+  },
+  {
+    "id": 2909217114,
+    "name": "Wahabwala",
+    "latitude": 30.0275501,
+    "longitude": 74.2027507
+  },
+  {
+    "id": 2942803720,
+    "name": "Banwala",
+    "latitude": 30.3659137,
+    "longitude": 74.0518756
+  },
+  {
+    "id": 4301478989,
+    "name": "Haripura",
+    "latitude": 30.1363540,
+    "longitude": 74.0370486
+  },
+  {
+    "id": 4301478990,
+    "name": "Bishnoi Mandir",
+    "latitude": 30.1368685,
+    "longitude": 74.0341678
+  }
+]

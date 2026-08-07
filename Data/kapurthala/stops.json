@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1328106795,
+    "name": "Rehana Jattan",
+    "city": "Kapurthala",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 31.3586666,
+    "longitude": 75.8158262,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  }
+]

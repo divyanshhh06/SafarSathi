@@ -1,0 +1,54 @@
+[
+  {
+    "id": 2663261171,
+    "name": "Bhugipura Chowk",
+    "city": "Moga",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.8184434,
+    "longitude": 75.2190546,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": true
+  },
+  {
+    "id": 2677062869,
+    "name": "Bus Stand",
+    "city": "Moga",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.8119303,
+    "longitude": 75.3356210,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": false
+  },
+  {
+    "id": 5015094103,
+    "name": "Dharamkot Bus Stop",
+    "city": "Moga",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.9395274,
+    "longitude": 75.2383084,
+    "type": "bus_stop",
+    "publicTransport": false,
+    "bench": null,
+    "shelter": null
+  },
+  {
+    "id": 6639524485,
+    "name": "Dagru Village",
+    "city": "Moga",
+    "state": "Punjab",
+    "country": "India",
+    "latitude": 30.8341300,
+    "longitude": 75.0476956,
+    "type": "bus_stop",
+    "publicTransport": true,
+    "bench": null,
+    "shelter": null
+  }
+]

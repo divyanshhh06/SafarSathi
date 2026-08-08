@@ -13,7 +13,7 @@ class BusMap extends StatelessWidget {
   const BusMap({
     super.key,
     required this.buses,
-    this.center = const LatLng(23.2599, 77.4126),
+    this.center = const LatLng(30.8119303, 75.3356210),
     this.zoom = 11.5,
   });
 

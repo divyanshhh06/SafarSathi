@@ -185,8 +185,10 @@ class SocketService {
     }
 
     if (_socket == null || _socket?.connected != true) {
+      connect();
       return false;
     }
+
 
     try {
       final compressedPayload = [

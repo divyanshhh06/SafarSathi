@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'screens/splash_screen.dart';
+import 'screens/commuter_home_screen.dart';
 import 'screens/admin_dashboard.dart';
 import 'screens/driver_home_screen.dart';
 import 'modelss/location_ping.dart';
@@ -21,19 +23,19 @@ class TransitCommuterApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Transit Tracker - Commuter',
+      title: 'Transit Tracker - SafarSathi',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: Colors.indigo,
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const DriverHomeScreen(),
+      home: const SplashScreen(),
       routes: {
+        '/commuter': (context) => const CommuterHomeScreen(),
         '/admin': (context) => const AdminDashboard(),
         '/driver': (context) => const DriverHomeScreen(),
       },
     );
   }
 }
-

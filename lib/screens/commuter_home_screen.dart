@@ -80,6 +80,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   }
 
   void _onRouteSelected(BusRoute route) {
+    _socketService.joinRoute(route.id);
     _mapController.move(route.stops.first.position, 14);
 
     final busesOnRoute =

@@ -89,6 +89,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     ),
   ];
 
+  // ignore: unused_field
   final List<BusStop> _stops = [
     const BusStop(
       id: 'S-01',
@@ -149,14 +150,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }).toList();
   }
 
+  // ignore: unused_element
   int get _activeBuses => _buses.length;
 
+  // ignore: unused_element
   int get _delayedBuses {
     return _buses.where((bus) {
       return bus.speedKmh < 20;
     }).length;
   }
 
+  // ignore: unused_element
   int get _offlineBuses {
     return 0;
   }

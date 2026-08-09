@@ -9,7 +9,6 @@ import '../modelss/route_model.dart';
 import '../modelss/stop.dart';
 import '../widget/bus_map.dart';
 import '../widget/route_table.dart';
-import '../servicess/mock_data_service.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -26,54 +25,98 @@ class _AdminDashboardState extends State<AdminDashboard> {
   // Language selected in Fleet page.
   String _selectedLanguage = 'en';
 
-final MockDataService _mockDataService = MockDataService();
+  final List<Bus> _buses = [
+    Bus(
+      busId: 'BUS-101',
+      routeId: 'R-01',
+      position: const LatLng(23.2599, 77.4126),
+      speedKmh: 34,
+      bearing: 90,
+      occupancy: OccupancyLevel.seatsAvailable,
+    ),
+    Bus(
+      busId: 'BUS-102',
+      routeId: 'R-02',
+      position: const LatLng(23.2450, 77.4010),
+      speedKmh: 27,
+      bearing: 180,
+      occupancy: OccupancyLevel.standingOnly,
+    ),
+    Bus(
+      busId: 'BUS-103',
+      routeId: 'R-03',
+      position: const LatLng(23.2700, 77.4250),
+      speedKmh: 16,
+      bearing: 270,
+      occupancy: OccupancyLevel.packed,
+    ),
+    Bus(
+      busId: 'BUS-104',
+      routeId: 'R-01',
+      position: const LatLng(23.2500, 77.4350),
+      speedKmh: 41,
+      bearing: 0,
+      occupancy: OccupancyLevel.seatsAvailable,
+    ),
+  ];
 
-List<Bus> _buses = [];
-StreamSubscription<List<Bus>>? _busSubscription;
+  final List<BusRoute> _routes = [
+    const BusRoute(
+      id: 'R-01',
+      name: 'R-01',
+      startPoint: 'Bhopal Terminal',
+      endPoint: 'MP Nagar',
+      stopIds: ['S-01', 'S-02', 'S-03', 'S-04'],
+      status: 'Active',
+      totalBuses: 8,
+    ),
+    const BusRoute(
+      id: 'R-02',
+      name: 'R-02',
+      startPoint: 'Airport',
+      endPoint: 'Habibganj',
+      stopIds: ['S-05', 'S-06', 'S-07', 'S-08', 'S-09'],
+      status: 'Active',
+      totalBuses: 10,
+    ),
+    const BusRoute(
+      id: 'R-03',
+      name: 'R-03',
+      startPoint: 'Kolar',
+      endPoint: 'City Centre',
+      stopIds: ['S-10', 'S-11', 'S-12'],
+      status: 'Delayed',
+      totalBuses: 6,
+    ),
+  ];
 
-final List<BusRoute> _routes = [
-  const BusRoute(
-    id: 'M1',
-    name: 'Route M1',
-    startPoint: 'Moga Bus Stand',
-    endPoint: 'Dagru Village',
-    stopIds: [
-      '2677062869',
-      '2663261171',
-      '6639524485',
-    ],
-    status: 'Active',
-    totalBuses: 1,
-  ),
-  const BusRoute(
-    id: 'M2',
-    name: 'Route M2',
-    startPoint: 'Moga Bus Stand',
-    endPoint: 'Dharamkot Bus Stop',
-    stopIds: [
-      '2677062869',
-      '2663261171',
-      '5015094103',
-    ],
-    status: 'Active',
-    totalBuses: 1,
-  ),
-];
-
-  
+  // ignore: unused_field
+  final List<BusStop> _stops = [
+    const BusStop(
+      id: 'S-01',
+      name: 'Bhopal Terminal',
+      position: LatLng(23.2599, 77.4126),
+      address: 'Main Bus Terminal',
+    ),
+    const BusStop(
+      id: 'S-02',
+      name: 'Board Office',
+      position: LatLng(23.2310, 77.4340),
+      address: 'Board Office Square',
+    ),
+    const BusStop(
+      id: 'S-03',
+      name: 'MP Nagar',
+      position: LatLng(23.2330, 77.4320),
+      address: 'MP Nagar Zone 1',
+    ),
+  ];
 
   Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
-      _busSubscription = _mockDataService.busUpdates.listen((buses) {
-    if (mounted) {
-      setState(() {
-        _buses = buses;
-      });
-    }
-  });
 
     _refreshTimer = Timer.periodic(
       const Duration(seconds: 10),
@@ -86,12 +129,10 @@ final List<BusRoute> _routes = [
   }
 
   @override
-void dispose() {
-  _refreshTimer?.cancel();
-  _busSubscription?.cancel();
-  _mockDataService.dispose();
-  super.dispose();
-}
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
 
   List<BusRoute> get _filteredRoutes {
     if (_searchQuery.trim().isEmpty) {
@@ -108,14 +149,17 @@ void dispose() {
     }).toList();
   }
 
+  // ignore: unused_element
   int get _activeBuses => _buses.length;
 
+  // ignore: unused_element
   int get _delayedBuses {
     return _buses.where((bus) {
       return bus.speedKmh < 20;
     }).length;
   }
 
+  // ignore: unused_element
   int get _offlineBuses {
     return 0;
   }

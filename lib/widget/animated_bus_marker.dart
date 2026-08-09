@@ -9,8 +9,8 @@ class LatLngTween extends Tween<LatLng> {
 
   @override
   LatLng lerp(double t) {
-    final b = begin!;
-    final e = end!;
+    final b = begin ?? end ?? const LatLng(0, 0);
+    final e = end ?? begin ?? const LatLng(0, 0);
     return LatLng(
       b.latitude + (e.latitude - b.latitude) * t,
       b.longitude + (e.longitude - b.longitude) * t,
@@ -18,14 +18,14 @@ class LatLngTween extends Tween<LatLng> {
   }
 }
 
-/// A bus icon that smoothly animates positions and displays crowdsourced occupancy.
+/// Smoothly animates bus marker position and displays speed & crowdsourced occupancy.
 class AnimatedBusMarker extends StatefulWidget {
   final LatLng target;
   final double bearing;
   final double speedKmh;
   final OccupancyLevel occupancy;
   final Duration duration;
-  final void Function(LatLng animatedPosition) onPositionUpdate;
+  final void Function(LatLng animatedPosition)? onPositionUpdate;
 
   const AnimatedBusMarker({
     super.key,
@@ -33,8 +33,8 @@ class AnimatedBusMarker extends StatefulWidget {
     required this.bearing,
     required this.speedKmh,
     this.occupancy = OccupancyLevel.seatsAvailable,
-    required this.onPositionUpdate,
-    this.duration = const Duration(milliseconds: 1800),
+    this.onPositionUpdate,
+    this.duration = const Duration(milliseconds: 900),
   });
 
   @override
@@ -53,10 +53,6 @@ class _AnimatedBusMarkerState extends State<AnimatedBusMarker>
     _currentPosition = widget.target;
     _controller = AnimationController(vsync: this, duration: widget.duration);
     _tween = LatLngTween(begin: widget.target, end: widget.target);
-    _controller.addListener(() {
-      _currentPosition = _tween.evaluate(_controller);
-      widget.onPositionUpdate(_currentPosition);
-    });
   }
 
   @override
@@ -78,38 +74,48 @@ class _AnimatedBusMarkerState extends State<AnimatedBusMarker>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.black87,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            '${widget.speedKmh.toStringAsFixed(0)} km/h',
-            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 2),
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: widget.occupancy.color.withValues(alpha: 0.25),
-            shape: BoxShape.circle,
-            border: Border.all(color: widget.occupancy.color, width: 2),
-          ),
-          child: Transform.rotate(
-            angle: widget.bearing * 3.1415926535 / 180,
-            child: Icon(
-              Icons.directions_bus_rounded,
-              color: widget.occupancy.color,
-              size: 24,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        _currentPosition = _tween.evaluate(_controller);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '${widget.speedKmh.toStringAsFixed(0)} km/h',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 2),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: widget.occupancy.color.withValues(alpha: 0.25),
+                shape: BoxShape.circle,
+                border: Border.all(color: widget.occupancy.color, width: 2),
+              ),
+              child: Transform.rotate(
+                angle: widget.bearing * 3.1415926535 / 180,
+                child: Icon(
+                  Icons.directions_bus_rounded,
+                  color: widget.occupancy.color,
+                  size: 24,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

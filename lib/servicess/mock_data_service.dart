@@ -73,23 +73,33 @@ class MockDataService {
   Timer? _timer;
 
   MockDataService() {
+    for (final route in routes) {
+      _state[route.id] = _MockBusState(
+        busId: 'PB-29-${route.id}-101',
+        routeId: route.id,
+        path: route.path,
+        segmentIndex: 0,
+        progress: 0.0,
+      );
+    }
     _initRoadRoutes();
   }
 
   Future<void> _initRoadRoutes() async {
     for (final route in routes) {
-      // Fetch exact road coordinates for route
       final roadPoints = await RoadRoutingService.getRoadPath(route.path);
-
-      _state[route.id] = _MockBusState(
-        busId: 'PB-29-${route.id}-${100 + Random().nextInt(50)}',
-        routeId: route.id,
-        path: roadPoints.isNotEmpty ? roadPoints : route.path,
-        segmentIndex: 0,
-        progress: 0,
-      );
+      if (roadPoints.isNotEmpty) {
+        _state[route.id] = _MockBusState(
+          busId: 'PB-29-${route.id}-101',
+          routeId: route.id,
+          path: roadPoints,
+          segmentIndex: 0,
+          progress: 0.0,
+        );
+      }
     }
   }
+
 
   Stream<List<Bus>> get busUpdates {
     _timer ??= Timer.periodic(const Duration(seconds: 1), (_) => _tick());
@@ -143,8 +153,9 @@ class _MockBusState {
     }
 
     // Step smoothly along road nodes
-    progress += 0.25;
+    progress += 0.08;
     if (progress >= 1) {
+
       progress = 0;
       if (forward) {
         segmentIndex++;

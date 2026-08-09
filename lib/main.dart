@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/commuter_home_screen.dart';
 import 'screens/admin_dashboard.dart';
 import 'screens/driver_home_screen.dart';
@@ -38,6 +39,7 @@ class TransitCommuterApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
+        '/login': (context) => const LoginScreen(),
         '/commuter': (context) => const CommuterHomeScreen(),
         '/admin': (context) => const AdminDashboard(),
         '/driver': (context) => const DriverHomeScreen(),
@@ -45,3 +47,4 @@ class TransitCommuterApp extends StatelessWidget {
     );
   }
 }
+

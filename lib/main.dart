@@ -9,10 +9,16 @@ import 'modelss/location_ping.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Hive.initFlutter();
-  Hive.registerAdapter(LocationPingAdapter());
-  await Hive.openBox<LocationPing>('trip_pings');
-  await Hive.openBox('trip_state');
+  try {
+    await Hive.initFlutter();
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(LocationPingAdapter());
+    }
+    await Hive.openBox<LocationPing>('trip_pings');
+    await Hive.openBox('trip_state');
+  } catch (e) {
+    debugPrint('⚠️ Hive initialization non-fatal warning: $e');
+  }
 
   runApp(const TransitCommuterApp());
 }

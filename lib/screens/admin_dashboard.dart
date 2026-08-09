@@ -25,8 +25,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   int _selectedTabIndex = 0;
   List<Bus> _liveBuses = [];
-  final Map<String, LatLng> _animatedPositions = {};
   List<Polyline> _routePolylines = [];
+
 
   // Initial Center: Moga, Punjab Bus Stand
   static const LatLng _initialCenter = LatLng(30.8119303, 75.3356210);
@@ -39,10 +39,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (mounted) {
         setState(() {
           _liveBuses = buses;
-          for (final bus in buses) {
-            _animatedPositions.putIfAbsent(bus.busId, () => bus.position);
-          }
         });
+
       }
     });
   }

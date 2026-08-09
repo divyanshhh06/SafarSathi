@@ -23,8 +23,8 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   final SocketService _socketService = SocketService();
 
   List<Bus> _liveBuses = [];
-  final Map<String, LatLng> _animatedPositions = {};
   List<Polyline> _routePolylines = [];
+
   String _currentLang = 'en'; // 'en', 'pa', 'hi'
 
   // Center on Moga, Punjab Bus Stand

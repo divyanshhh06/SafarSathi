@@ -296,7 +296,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   MarkerLayer(
                     markers: _liveBuses.map((bus) {
                       return Marker(
-                        point: _animatedPositions[bus.busId] ?? bus.position,
+                        point: bus.position,
                         width: 65,
                         height: 65,
                         child: AnimatedBusMarker(
@@ -304,17 +304,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           bearing: bus.bearing,
                           speedKmh: bus.speedKmh,
                           occupancy: bus.occupancy,
-                          onPositionUpdate: (pos) {
-                            if (mounted) {
-                              setState(() {
-                                _animatedPositions[bus.busId] = pos;
-                              });
-                            }
-                          },
                         ),
                       );
                     }).toList(),
                   ),
+
                 ],
               ),
               Positioned(

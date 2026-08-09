@@ -38,13 +38,11 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
       if (mounted) {
         setState(() {
           _liveBuses = buses;
-          for (final bus in buses) {
-            _animatedPositions.putIfAbsent(bus.busId, () => bus.position);
-          }
         });
       }
     });
   }
+
 
   Future<void> _loadRoadPolylines() async {
     final polylines = <Polyline>[];
@@ -168,7 +166,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               MarkerLayer(
                 markers: _liveBuses.map((bus) {
                   return Marker(
-                    point: _animatedPositions[bus.busId] ?? bus.position,
+                    point: bus.position,
                     width: 65,
                     height: 65,
                     child: AnimatedBusMarker(
@@ -176,17 +174,11 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                       bearing: bus.bearing,
                       speedKmh: bus.speedKmh,
                       occupancy: bus.occupancy,
-                      onPositionUpdate: (pos) {
-                        if (mounted) {
-                          setState(() {
-                            _animatedPositions[bus.busId] = pos;
-                          });
-                        }
-                      },
                     ),
                   );
                 }).toList(),
               ),
+
             ],
           ),
           SafeArea(

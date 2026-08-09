@@ -35,7 +35,10 @@ class LocationService {
     required String busId,
     required String routeId,
   }) async {
+    _socketService.connect(routeId: routeId);
+
     final hasPermission = await _ensurePermissions();
+
     if (!hasPermission) {
       throw Exception('Location permission not granted');
     }

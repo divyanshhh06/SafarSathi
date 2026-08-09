@@ -207,10 +207,26 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
           Positioned(
             right: 12,
             bottom: 24,
-            child: FloatingActionButton.small(
-              heroTag: 'recenter',
-              onPressed: () => _mapController.move(_initialCenter, 13),
-              child: const Icon(Icons.my_location),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton.extended(
+                  heroTag: 'admin_switch',
+                  backgroundColor: const Color(0xFF1E1F57),
+                  foregroundColor: Colors.white,
+                  icon: const Icon(Icons.admin_panel_settings_rounded, size: 20),
+                  label: const Text('Admin Portal', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/admin');
+                  },
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton.small(
+                  heroTag: 'recenter',
+                  onPressed: () => _mapController.move(_initialCenter, 13),
+                  child: const Icon(Icons.my_location),
+                ),
+              ],
             ),
           ),
         ],
@@ -218,3 +234,4 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     );
   }
 }
+

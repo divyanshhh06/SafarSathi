@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/admin_dashboard.dart';
+import 'screens/driver_home_screen.dart';
+import 'modelss/location_ping.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(LocationPingAdapter());
+  await Hive.openBox<LocationPing>('trip_pings');
+  await Hive.openBox('trip_state');
+
   runApp(const TransitCommuterApp());
 }
 
@@ -19,8 +28,11 @@ class TransitCommuterApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const AdminDashboard(),
-      routes: {'/admin': (context) => const AdminDashboard()},
+      home: const DriverHomeScreen(),
+      routes: {
+        '/admin': (context) => const AdminDashboard(),
+        '/driver': (context) => const DriverHomeScreen(),
+      },
     );
   }
 }

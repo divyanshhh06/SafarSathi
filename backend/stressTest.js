@@ -1,7 +1,7 @@
 const { io } = require('socket.io-client');
 const { compressPayload } = require('./payloadCompressor');
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = process.env.SERVER_URL || 'https://safarsathi-3jjl.onrender.com';
 const NUM_DRIVERS = 8; // Simulating 8 concurrent drivers
 const UPDATE_INTERVAL_MS = 1500; // Update every 1.5 seconds
 

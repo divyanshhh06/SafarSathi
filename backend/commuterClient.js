@@ -1,8 +1,8 @@
 const { io } = require('socket.io-client');
 const { decompressPayload } = require('./payloadCompressor');
 
-// Connect to your WebSocket server
-const socket = io('http://localhost:3000');
+const SOCKET_URL = process.env.SOCKET_URL || 'https://safarsathi-3jjl.onrender.com';
+const socket = io(SOCKET_URL);
 
 socket.on('connect', () => {
   console.log('📱 Commuter client connected to server!');

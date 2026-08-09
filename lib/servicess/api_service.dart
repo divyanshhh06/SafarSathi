@@ -8,8 +8,7 @@ import '../modelss/stop.dart';
 
 class ApiService {
   // Single production cloud server URL for REST API
-  static const String baseUrl = 'https://safarsathi-1e51.onrender.com/api';
-
+  static const String baseUrl = 'https://safarsathi-3jjl.onrender.com/api';
 
   final http.Client _client;
 

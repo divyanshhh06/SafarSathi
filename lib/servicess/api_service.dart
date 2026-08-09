@@ -7,9 +7,9 @@ import '../modelss/route_model.dart';
 import '../modelss/stop.dart';
 
 class ApiService {
-  // Replace this with your team's actual backend URL.
-  // Keep it in one place so the rest of the frontend doesn't need changes.
-  static const String baseUrl = 'http://localhost:8000/api';
+  // Single production cloud server URL for REST API
+  static const String baseUrl = 'https://safarsathi-1e51.onrender.com/api';
+
 
   final http.Client _client;
 

@@ -28,14 +28,20 @@ class SocketService {
   StreamSubscription<List<Bus>>? _mockSub;
 
   Stream<List<Bus>> connect({String? routeId}) {
-    if (useMock) {
-      _mockSub = _mock.busUpdates.listen((buses) {
-        if (!_controller.isClosed) _controller.add(buses);
-      });
-      return _controller.stream;
-    }
+    // Always supply initial mock buses so live buses are visible immediately
+    _mockSub = _mock.busUpdates.listen((buses) {
+      if (_busMap.isEmpty) {
+        for (final b in buses) {
+          _busMap[b.busId] = b;
+        }
+      }
+      if (!_controller.isClosed) {
+        _controller.add(_busMap.values.toList());
+      }
+    });
 
     if (_socket == null) {
+
       _socket = io.io(
         backendUrl,
         io.OptionBuilder()

@@ -11,7 +11,7 @@ import 'mock_data_service.dart';
 class SocketService {
   static const bool useMock = false;
 
-  static String get backendUrl => 'https://safarsathi-1e51.onrender.com';
+  static String get backendUrl => 'https://safarsathi-1-63eu.onrender.com';
 
 
   io.Socket? _socket;

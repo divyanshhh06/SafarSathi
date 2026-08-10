@@ -9,7 +9,7 @@ import '../modelss/stop.dart';
 
 class ApiService {
   static const String _localBaseUrl = 'http://localhost:3000/api';
-  static const String _renderBaseUrl = 'https://safarsathi-1e51.onrender.com/api';
+  static const String _renderBaseUrl = 'https://safarsathi-1-63eu.onrender.com/api';
 
   static String get baseUrl => kReleaseMode ? _renderBaseUrl : _localBaseUrl;
 

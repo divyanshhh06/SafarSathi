@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../modelss/bus_route.dart';
+import '../modelss/stop.dart';
 
 /// Search bar for routes/stops + 1-Tap Vernacular Voice Search (FE-1 X-Factor).
 class RouteSearchBar extends StatefulWidget {
   final List<BusRoute> routes;
+  final List<BusStop> stops;
   final void Function(BusRoute route) onResultSelected;
   final String currentLang;
   final ValueChanged<String> onLanguageChanged;
@@ -12,6 +14,7 @@ class RouteSearchBar extends StatefulWidget {
   const RouteSearchBar({
     super.key,
     required this.routes,
+    this.stops = const [],
     required this.onResultSelected,
     required this.currentLang,
     required this.onLanguageChanged,
@@ -147,7 +150,13 @@ class _RouteSearchBarState extends State<RouteSearchBar> {
         return stopName.contains(lower) || stop.name.toLowerCase().contains(lower);
       });
 
-      return routeMatch || stopMatch;
+      final apiStopMatch = widget.stops.any((stop) {
+        return stop.name.toLowerCase().contains(lower) ||
+            stop.city.toLowerCase().contains(lower) ||
+            stop.state.toLowerCase().contains(lower);
+      });
+
+      return routeMatch || stopMatch || apiStopMatch;
     }).toList();
 
     setState(() {

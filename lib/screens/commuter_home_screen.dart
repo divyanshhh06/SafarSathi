@@ -4,9 +4,11 @@ import 'package:latlong2/latlong.dart';
 
 import '../modelss/bus.dart';
 import '../modelss/bus_route.dart';
+import '../modelss/stop.dart';
 import '../servicess/socket_service.dart';
 import '../servicess/mock_data_service.dart';
 import '../servicess/road_routing_service.dart';
+import '../servicess/api_service.dart';
 import '../widget/route_search_bar.dart';
 import '../widget/route_sheet.dart';
 import '../widget/animated_bus_marker.dart';
@@ -21,9 +23,11 @@ class CommuterHomeScreen extends StatefulWidget {
 class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   final MapController _mapController = MapController();
   final SocketService _socketService = SocketService();
+  final ApiService _apiService = ApiService();
 
   List<Bus> _liveBuses = [];
   List<Polyline> _routePolylines = [];
+  List<BusStop> _apiStops = [];
 
   String _currentLang = 'en'; // 'en', 'pa', 'hi'
 
@@ -34,6 +38,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   void initState() {
     super.initState();
     _loadRoadPolylines();
+    _loadApiStops();
     _socketService.connect().listen((buses) {
       if (mounted) {
         setState(() {
@@ -41,6 +46,20 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
         });
       }
     });
+  }
+
+  Future<void> _loadApiStops() async {
+    try {
+      final stops = await _apiService.getStops();
+      if (mounted) {
+        setState(() {
+          _apiStops = stops;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load stops from API: $e');
+    }
   }
 
 
@@ -126,17 +145,16 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               // Road Route Polylines Layer
               if (_routePolylines.isNotEmpty)
                 PolylineLayer(polylines: _routePolylines),
-              // Bus Stops Marker Layer (Moga Dataset)
+              // Bus Stops Marker Layer (API-backed)
               MarkerLayer(
-                markers: MockDataService.allStops.map((stop) {
+                markers: _apiStops.map((stop) {
                   final hasShelter = stop.shelter == true;
-                  final localizedName = stop.getLocalizedName(_currentLang);
                   return Marker(
                     point: stop.position,
                     width: 38,
                     height: 38,
                     child: Tooltip(
-                      message: '$localizedName, ${stop.city}',
+                      message: '${stop.name}, ${stop.city}',
                       child: Container(
                         decoration: BoxDecoration(
                           color: hasShelter
@@ -186,6 +204,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               padding: const EdgeInsets.all(12),
               child: RouteSearchBar(
                 routes: MockDataService.routes,
+                stops: _apiStops,
                 currentLang: _currentLang,
                 onLanguageChanged: (lang) {
                   setState(() {

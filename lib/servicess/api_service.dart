@@ -154,6 +154,56 @@ class ApiService {
         .toList();
   }
 
+  Future<List<District>> getDistricts() async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/districts'),
+      headers: _headers,
+    );
+
+    _checkResponse(response);
+
+    final List<dynamic> data = jsonDecode(response.body);
+
+    return data
+        .map((json) => District.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<BusStop>> getDistrictStops(String district) async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/stops/$district'),
+      headers: _headers,
+    );
+
+    _checkResponse(response);
+
+    final Map<String, dynamic> decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final List<dynamic> stops = decoded['stops'] as List<dynamic>;
+
+    return stops
+        .map((json) => BusStop.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<BusStop>> getNearbyStops(
+    double lat,
+    double lng, {
+    double radiusKm = 2,
+  }) async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/nearby-stops?lat=$lat&lng=$lng&radiusKm=$radiusKm'),
+      headers: _headers,
+    );
+
+    _checkResponse(response);
+
+    final List<dynamic> data = jsonDecode(response.body);
+
+    return data
+        .map((json) => BusStop.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<BusStop> createStop(Map<String, dynamic> data) async {
     final response = await _client.post(
       Uri.parse('$baseUrl/stops'),

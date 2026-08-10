@@ -4,10 +4,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../modelss/bus.dart';
+import '../modelss/stop.dart';
 import '../servicess/socket_service.dart';
 
 import '../servicess/mock_data_service.dart';
 import '../servicess/road_routing_service.dart';
+import '../servicess/api_service.dart';
 import '../widget/animated_bus_marker.dart';
 
 /// FE-2 Admin Dashboard & Command Center
@@ -22,10 +24,16 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   final MapController _mapController = MapController();
   final SocketService _socketService = SocketService();
+  final ApiService _apiService = ApiService();
 
   int _selectedTabIndex = 0;
   List<Bus> _liveBuses = [];
   List<Polyline> _routePolylines = [];
+  List<BusStop> _apiStops = [];
+  List<District> _districts = [];
+  List<BusStop> _selectedDistrictStops = [];
+  bool _isLoadingDistricts = false;
+  String? _expandedDistrictSlug;
 
 
   // Initial Center: Moga, Punjab Bus Stand
@@ -35,6 +43,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     _loadRoadPolylines();
+    _loadApiStops();
     _socketService.connect().listen((buses) {
       if (mounted) {
         setState(() {
@@ -69,6 +78,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
       setState(() {
         _routePolylines = polylines;
       });
+    }
+  }
+
+  Future<void> _loadApiStops() async {
+    try {
+      final stops = await _apiService.getStops();
+      if (mounted) {
+        setState(() {
+          _apiStops = stops;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load stops from API: $e');
+    }
+  }
+
+  Future<void> _loadDistricts() async {
+    setState(() => _isLoadingDistricts = true);
+    try {
+      final districts = await _apiService.getDistricts();
+      if (mounted) {
+        setState(() {
+          _districts = districts;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load districts from API: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingDistricts = false);
+      }
+    }
+  }
+
+  Future<void> _loadDistrictStops(String districtSlug) async {
+    setState(() => _isLoadingDistricts = true);
+    try {
+      final stops = await _apiService.getDistrictStops(districtSlug);
+      if (mounted) {
+        setState(() {
+          _selectedDistrictStops = stops;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load district stops from API: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingDistricts = false);
+      }
     }
   }
 
@@ -265,15 +326,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                   if (_routePolylines.isNotEmpty)
                     PolylineLayer(polylines: _routePolylines),
-                  // Moga Stop Markers
+                  // Stop Markers (API-backed)
                   MarkerLayer(
-                    markers: MockDataService.allStops.map((stop) {
+                    markers: _apiStops.map((stop) {
                       return Marker(
                         point: stop.position,
                         width: 32,
                         height: 32,
                         child: Tooltip(
-                          message: '${stop.name}, Moga',
+                          message: '${stop.name}, ${stop.city}',
                           child: Container(
                             decoration: BoxDecoration(
                               color: const Color(0xFF2E3192),
@@ -325,13 +386,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  // TAB 2: Routes & Stops Overview
+  // TAB 2: Districts & Stops Overview
   Widget _buildRoutesTab() {
+    if (_districts.isEmpty && !_isLoadingDistricts) {
+      Future.microtask(_loadDistricts);
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(12),
-      itemCount: MockDataService.routes.length,
+      itemCount: _districts.length,
       itemBuilder: (context, index) {
-        final route = MockDataService.routes[index];
+        final district = _districts[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -339,28 +404,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
             leading: CircleAvatar(
               backgroundColor: Colors.indigo,
               child: Text(
-                route.id,
+                district.name[0].toUpperCase(),
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
             title: Text(
-              route.name,
+              district.name,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             subtitle: Text(
-              '${route.stops.length} stops • Moga Transit Line',
+              '${district.stopCount} stops',
               style: const TextStyle(fontSize: 12),
             ),
+            onExpansionChanged: (expanded) {
+              if (expanded) {
+                setState(() => _expandedDistrictSlug = district.slug);
+                _loadDistrictStops(district.slug);
+              } else {
+                setState(() => _expandedDistrictSlug = null);
+              }
+            },
             children: [
               const Divider(height: 1),
-              ...route.stops.map(
-                (stop) => ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.location_on_outlined, size: 18),
-                  title: Text(stop.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text('Lat: ${stop.position.latitude.toStringAsFixed(4)}, Lng: ${stop.position.longitude.toStringAsFixed(4)}'),
+              if (_isLoadingDistricts && _expandedDistrictSlug == district.slug)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_expandedDistrictSlug == district.slug)
+                ..._selectedDistrictStops.map(
+                  (stop) => ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.location_on_outlined, size: 18),
+                    title: Text(stop.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    subtitle: Text('${stop.city}, ${stop.state}'),
+                  ),
                 ),
-              ),
             ],
           ),
         );

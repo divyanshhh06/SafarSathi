@@ -5,7 +5,7 @@ const memoryCache = new Map();
 let isRedisConnected = false;
 
 const redis = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
+  host: (process.env.REDIS_HOST || '127.0.0.1').replace(/^https?:\/\//, ''),
   port: process.env.REDIS_PORT || 6379,
   maxRetriesPerRequest: 1,
   retryStrategy(times) {
@@ -56,4 +56,4 @@ module.exports = {
   redis,
   updateBusLocation,
   getBusLocation
-};
+};

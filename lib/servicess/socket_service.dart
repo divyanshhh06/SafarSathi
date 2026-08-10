@@ -11,14 +11,8 @@ import 'mock_data_service.dart';
 class SocketService {
   static const bool useMock = false;
 
-  static String get backendUrl {
-    if (kReleaseMode) return 'https://safarsathi-1e51.onrender.com';
-    if (kIsWeb) return 'http://localhost:3000';
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3000';
-    }
-    return 'http://localhost:3000';
-  }
+  static String get backendUrl => 'https://safarsathi-1e51.onrender.com';
+
 
   io.Socket? _socket;
   final MockDataService _mock = MockDataService();

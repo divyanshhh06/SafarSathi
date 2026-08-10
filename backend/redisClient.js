@@ -4,9 +4,14 @@ const Redis = require('ioredis');
 const memoryCache = new Map();
 let isRedisConnected = false;
 
+const isUpstash = /upstash\.io$/.test(
+  (process.env.REDIS_HOST || '').replace(/^https?:\/\//, '')
+);
+
 const redis = new Redis({
   host: (process.env.REDIS_HOST || '127.0.0.1').replace(/^https?:\/\//, ''),
   port: process.env.REDIS_PORT || 6379,
+  ...(isUpstash ? { tls: {} } : {}),
   maxRetriesPerRequest: 1,
   retryStrategy(times) {
     if (times > 2) {

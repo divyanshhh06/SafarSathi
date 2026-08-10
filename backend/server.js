@@ -14,6 +14,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'SafarSathi BE-1', time: new Date() });
 });
 
+app.get('/', (req, res) => {
+  res.json({
+    service: 'SafarSathi BE-1',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      districts: '/api/districts',
+      stops: '/api/stops',
+      districtStops: '/api/stops/:district',
+      nearbyStops: '/api/nearby-stops?lat=&lng=&radiusKm=',
+    },
+  });
+});
+
 // --- Stops API (backed by Data/<district>/stops.json) ---
 
 app.get('/api/districts', (req, res) => {

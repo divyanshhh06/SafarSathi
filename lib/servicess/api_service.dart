@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../modelss/bus.dart';
@@ -7,8 +8,10 @@ import '../modelss/route_model.dart';
 import '../modelss/stop.dart';
 
 class ApiService {
-  // Single production cloud server URL for REST API
-  static const String baseUrl = 'https://safarsathi-3jjl.onrender.com/api';
+  static const String _localBaseUrl = 'http://localhost:3000/api';
+  static const String _renderBaseUrl = 'https://safarsathi-1e51.onrender.com/api';
+
+  static String get baseUrl => kReleaseMode ? _renderBaseUrl : _localBaseUrl;
 
   final http.Client _client;
 

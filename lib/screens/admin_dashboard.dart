@@ -31,7 +31,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Polyline> _routePolylines = [];
   List<BusStop> _apiStops = [];
   List<District> _districts = [];
-  List<BusStop> _selectedDistrictStops = [];
+  final Map<String, List<BusStop>> _districtStops = {};
   bool _isLoadingDistricts = false;
   String? _expandedDistrictSlug;
 
@@ -120,7 +120,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       final stops = await _apiService.getDistrictStops(districtSlug);
       if (mounted) {
         setState(() {
-          _selectedDistrictStops = stops;
+          _districtStops[districtSlug] = stops;
         });
       }
     } catch (e) {
@@ -432,7 +432,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (_expandedDistrictSlug == district.slug)
-                ..._selectedDistrictStops.map(
+                ...(_districtStops[district.slug] ?? []).map(
                   (stop) => ListTile(
                     dense: true,
                     leading: const Icon(Icons.location_on_outlined, size: 18),

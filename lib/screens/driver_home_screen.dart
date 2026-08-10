@@ -23,8 +23,9 @@ class DriverHomeScreen extends StatefulWidget {
 class _DriverHomeScreenState extends State<DriverHomeScreen> {
   static const _tripStateBox = 'trip_state';
 
-  final LocationService _locationService = LocationService(
-    socketService: SocketService(),
+  final SocketService _socketService = SocketService();
+  late final LocationService _locationService = LocationService(
+    socketService: _socketService,
   );
 
   bool _isTripActive = false;
@@ -108,7 +109,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       builder: (sheetContext) => _IssueSheet(
         onSubmit: (issueType, note) async {
           if (_busId == null || _selectedRoute == null) return;
-          await SocketService().reportDriverIssue(
+          await _socketService.reportDriverIssue(
             busId: _busId!,
             routeId: _selectedRoute!.id,
             issueType: issueType,

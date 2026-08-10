@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:latlong2/latlong.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../modelss/bus.dart';
@@ -12,6 +12,8 @@ class SocketService {
   static const bool useMock = false;
 
   static String get backendUrl {
+    const bool useLocal = false;
+    if (!useLocal) return 'https://safarsathi-3jjl.onrender.com';
     if (kIsWeb) return 'http://localhost:3000';
     if (defaultTargetPlatform == TargetPlatform.android) {
       return 'http://10.0.2.2:3000';

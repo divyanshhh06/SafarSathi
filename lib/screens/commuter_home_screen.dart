@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -11,6 +12,7 @@ import '../servicess/api_service.dart';
 import '../widget/route_search_bar.dart';
 import '../widget/route_sheet.dart';
 import '../widget/animated_bus_marker.dart';
+import '../widget/bus_info_card.dart';
 
 class CommuterHomeScreen extends StatefulWidget {
   const CommuterHomeScreen({super.key});
@@ -28,8 +30,12 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   List<Polyline> _routePolylines = [];
   List<BusStop> _apiStops = [];
   List<BusRoute> _apiRoutes = [];
+  List<BusRoute> _sortedRoutes = [];
+  Bus? _selectedBus;
 
   String _currentLang = 'en'; // 'en', 'pa', 'hi'
+  String _busQuery = '';
+  bool _sortByStops = false;
 
   // Center on Moga, Punjab Bus Stand
   static const LatLng _initialCenter = LatLng(30.8119303, 75.3356210);
@@ -55,12 +61,29 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
       if (mounted) {
         setState(() {
           _apiRoutes = routes;
+          _applyRouteSort();
         });
       }
     } catch (e) {
       // ignore: avoid_print
       print('Failed to load routes from API: $e');
     }
+  }
+
+  void _applyRouteSort() {
+    final sorted = List<BusRoute>.from(_apiRoutes);
+    if (_sortByStops) {
+      sorted.sort((a, b) {
+        final cmp = a.stops.length.compareTo(b.stops.length);
+        if (cmp != 0) return cmp;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      });
+    } else {
+      sorted.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    }
+    setState(() {
+      _sortedRoutes = sorted;
+    });
   }
 
   Future<void> _loadApiStops() async {
@@ -141,8 +164,45 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     );
   }
 
+  void _onBusTapped(Bus bus) {
+    final route = _apiRoutes.firstWhereOrNull((r) => r.id == bus.routeId);
+    setState(() {
+      _selectedBus = bus;
+    });
+    _showBusInfoSheet(context, bus, route);
+  }
+
+  void _showBusInfoSheet(BuildContext context, Bus bus, BusRoute? route) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: BusInfoCard(
+          bus: bus,
+          route: route,
+          onClose: () {
+            Navigator.pop(sheetContext);
+            setState(() => _selectedBus = null);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filteredBuses = _busQuery.isEmpty
+        ? _liveBuses
+        : _liveBuses.where((bus) {
+            final route = _apiRoutes.firstWhereOrNull((r) => r.id == bus.routeId);
+            final routeName = route?.getLocalizedName(_currentLang).toLowerCase() ?? '';
+            return bus.busId.toLowerCase().contains(_busQuery.toLowerCase()) ||
+                bus.routeId.toLowerCase().contains(_busQuery.toLowerCase()) ||
+                routeName.contains(_busQuery.toLowerCase());
+          }).toList();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -197,16 +257,19 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               ),
               // Live Bus Position Markers Layer with Occupancy status
               MarkerLayer(
-                markers: _liveBuses.map((bus) {
+                markers: filteredBuses.map((bus) {
                   return Marker(
                     point: bus.position,
                     width: 65,
                     height: 65,
-                    child: AnimatedBusMarker(
-                      target: bus.position,
-                      bearing: bus.bearing,
-                      speedKmh: bus.speedKmh,
-                      occupancy: bus.occupancy,
+                    child: GestureDetector(
+                      onTap: () => _onBusTapped(bus),
+                      child: AnimatedBusMarker(
+                        target: bus.position,
+                        bearing: bus.bearing,
+                        speedKmh: bus.speedKmh,
+                        occupancy: bus.occupancy,
+                      ),
                     ),
                   );
                 }).toList(),
@@ -215,24 +278,47 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
             ],
           ),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: RouteSearchBar(
-                routes: _apiRoutes,
-                stops: _apiStops,
-                currentLang: _currentLang,
-                onLanguageChanged: (lang) {
-                  setState(() {
-                    _currentLang = lang;
-                  });
-                },
-                onResultSelected: _onRouteSelected,
-              ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: RouteSearchBar(
+                    routes: _sortedRoutes,
+                    stops: _apiStops,
+                    currentLang: _currentLang,
+                    onLanguageChanged: (lang) {
+                      setState(() {
+                        _currentLang = lang;
+                      });
+                    },
+                    onResultSelected: _onRouteSelected,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _BusFinderField(
+                        query: _busQuery,
+                        onChanged: (q) => setState(() => _busQuery = q),
+                        count: filteredBuses.length,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _SortRoutesButton(
+                      sortByStops: _sortByStops,
+                      onToggle: (v) {
+                        setState(() => _sortByStops = v);
+                        _applyRouteSort();
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           Positioned(
             right: 12,
-            bottom: 24,
+            bottom: _selectedBus != null ? 280 : 24,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -255,8 +341,77 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               ],
             ),
           ),
+          if (_selectedBus != null)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 24,
+              child: BusInfoCard(
+                bus: _selectedBus!,
+                route: _apiRoutes.firstWhereOrNull((r) => r.id == _selectedBus!.routeId),
+                onClose: () => setState(() => _selectedBus = null),
+              ),
+            ),
         ],
       ),
+    );
+  }
+}
+
+class _BusFinderField extends StatelessWidget {
+  final String query;
+  final ValueChanged<String> onChanged;
+  final int count;
+
+  const _BusFinderField({
+    required this.query,
+    required this.onChanged,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: 'Find bus (ID / route)...',
+        prefixIcon: const Icon(Icons.directions_bus_rounded, size: 20),
+        suffixIcon: query.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear_rounded, size: 18),
+                onPressed: () => onChanged(''),
+              )
+            : null,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+}
+
+class _SortRoutesButton extends StatelessWidget {
+  final bool sortByStops;
+  final ValueChanged<bool> onToggle;
+
+  const _SortRoutesButton({
+    required this.sortByStops,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton.filledTonal(
+      onPressed: () => onToggle(!sortByStops),
+      icon: Icon(
+        sortByStops ? Icons.sort_by_alpha_rounded : Icons.sort_rounded,
+        size: 20,
+      ),
+      tooltip: sortByStops ? 'Sort by name' : 'Sort by stops',
     );
   }
 }

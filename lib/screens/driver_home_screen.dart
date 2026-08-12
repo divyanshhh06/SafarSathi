@@ -4,8 +4,8 @@ import 'package:uuid/uuid.dart';
 
 import '../modelss/bus_route.dart';
 import '../servicess/location_service.dart';
-import '../servicess/mock_data_service.dart';
 import '../servicess/socket_service.dart';
+import '../servicess/api_service.dart';
 
 /// FE-3: Driver Module home screen.
 ///
@@ -24,6 +24,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   static const _tripStateBox = 'trip_state';
 
   final SocketService _socketService = SocketService();
+  final ApiService _apiService = ApiService();
   late final LocationService _locationService = LocationService(
     socketService: _socketService,
   );
@@ -32,11 +33,27 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   String? _busId;
   BusRoute? _selectedRoute;
   int _pendingPings = 0;
+  List<BusRoute> _routes = [];
 
   @override
   void initState() {
     super.initState();
+    _loadRoutes();
     _restoreState();
+  }
+
+  Future<void> _loadRoutes() async {
+    try {
+      final routes = await _apiService.getRoutes();
+      if (mounted) {
+        setState(() {
+          _routes = routes;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load routes from API: $e');
+    }
   }
 
   void _restoreState() {
@@ -44,10 +61,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     final savedBusId = box.get('busId') as String?;
     final savedRouteId = box.get('routeId') as String?;
 
-    if (savedBusId != null && savedRouteId != null) {
-      final route = MockDataService.routes.firstWhere(
+    if (savedBusId != null && savedRouteId != null && _routes.isNotEmpty) {
+      final route = _routes.firstWhere(
             (r) => r.id == savedRouteId,
-        orElse: () => MockDataService.routes.first,
+        orElse: () => _routes.first,
       );
       setState(() {
         _isTripActive = true;
@@ -148,6 +165,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           child: Column(
             children: [
               if (!_isTripActive) _RoutePicker(
+                routes: _routes,
                 selected: _selectedRoute,
                 onChanged: (route) => setState(() => _selectedRoute = route),
               ),
@@ -187,10 +205,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 }
 
 class _RoutePicker extends StatelessWidget {
+  final List<BusRoute> routes;
   final BusRoute? selected;
   final ValueChanged<BusRoute?> onChanged;
 
-  const _RoutePicker({required this.selected, required this.onChanged});
+  const _RoutePicker({
+    required this.routes,
+    required this.selected,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +223,7 @@ class _RoutePicker extends StatelessWidget {
         labelText: 'Route',
         border: OutlineInputBorder(),
       ),
-      items: MockDataService.routes
+      items: routes
           .map((r) => DropdownMenuItem(value: r, child: Text(r.name)))
           .toList(),
       onChanged: onChanged,

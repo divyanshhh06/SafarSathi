@@ -5,36 +5,18 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../modelss/bus.dart';
-import 'mock_data_service.dart';
 
 /// Single source of truth for live bus data and BE-1 Socket.IO backend communication.
 class SocketService {
-  static const bool useMock = false;
-
   static String get backendUrl => 'https://safarsathi-1-63eu.onrender.com';
 
-
   io.Socket? _socket;
-  final MockDataService _mock = MockDataService();
   final StreamController<List<Bus>> _controller =
       StreamController<List<Bus>>.broadcast();
 
   final Map<String, Bus> _busMap = {};
-  StreamSubscription<List<Bus>>? _mockSub;
 
   Stream<List<Bus>> connect({String? routeId}) {
-    // Always supply initial mock buses so live buses are visible immediately
-    _mockSub = _mock.busUpdates.listen((buses) {
-      if (_busMap.isEmpty) {
-        for (final b in buses) {
-          _busMap[b.busId] = b;
-        }
-      }
-      if (!_controller.isClosed) {
-        _controller.add(_busMap.values.toList());
-      }
-    });
-
     if (_socket == null) {
 
       _socket = io.io(
@@ -151,12 +133,6 @@ class SocketService {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
-    if (useMock) {
-      // ignore: avoid_print
-      print('[MOCK] Sent occupancy report payload to BE-2: $payload');
-      return;
-    }
-
     try {
       await http.post(
         Uri.parse('$backendUrl/api/buses/$busId/occupancy'),
@@ -173,17 +149,10 @@ class SocketService {
   /// Sends a single GPS reading from the driver app to BE-1's compressed live feed ('d_up').
   /// Compressed Payload format expected by server.js: [lat, lng, busId, speed, routeId]
   Future<bool> reportDriverLocation(Map<String, dynamic> pingJson) async {
-    if (useMock) {
-      // ignore: avoid_print
-      print('[MOCK] Driver location ping -> BE-1: $pingJson');
-      return true;
-    }
-
     if (_socket == null || _socket?.connected != true) {
       connect();
       return false;
     }
-
 
     try {
       final compressedPayload = [
@@ -218,12 +187,6 @@ class SocketService {
       'timestamp': DateTime.now().toIso8601String(),
     };
 
-    if (useMock) {
-      // ignore: avoid_print
-      print('[MOCK] Driver issue report -> BE-2: $payload');
-      return;
-    }
-
     try {
       await http.post(
         Uri.parse('$backendUrl/api/buses/$busId/issues'),
@@ -238,8 +201,6 @@ class SocketService {
   }
 
   void dispose() {
-    _mockSub?.cancel();
-    _mock.dispose();
     _socket?.dispose();
     _controller.close();
   }

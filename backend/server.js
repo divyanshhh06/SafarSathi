@@ -64,6 +64,20 @@ app.get('/api/nearby-stops', (req, res) => {
   res.json(stopsService.getNearbyStops(lat, lng, radiusKm));
 });
 
+app.get('/api/routes', (req, res) => {
+  res.json(stopsService.getAllRoutes());
+});
+
+app.get('/api/routes/:id', (req, res) => {
+  const route = stopsService.getRoute(req.params.id);
+
+  if (!route) {
+    return res.status(404).json({ error: 'Route not found' });
+  }
+
+  res.json(route);
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: '*' }

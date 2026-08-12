@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../modelss/bus.dart';
-import '../modelss/route_model.dart';
+import '../modelss/bus_route.dart';
 import '../modelss/stop.dart';
 
 class ApiService {
@@ -93,6 +93,17 @@ class ApiService {
     return data
         .map((json) => BusRoute.fromJson(json as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<BusRoute> getRoute(String routeId) async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/routes/$routeId'),
+      headers: _headers,
+    );
+
+    _checkResponse(response);
+
+    return BusRoute.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   Future<BusRoute> createRoute(Map<String, dynamic> data) async {

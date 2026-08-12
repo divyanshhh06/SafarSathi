@@ -1,0 +1,26 @@
+[
+  {
+    "id": "M1",
+    "name": "Route M1: Moga Central - Dagru Line",
+    "namePa": "ਰੂਟ M1: ਮੋਗਾ ਕੇਂਦਰੀ - ਡਾਗਰੂ ਲਾਈਨ",
+    "nameHi": "रूट M1: मोगा केंद्रीय - डाग्रू लाइन",
+    "stops": [
+      { "id": "2677062869", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Moga", "state": "Punjab", "latitude": 30.8119303, "longitude": 75.3356210, "shelter": false },
+      { "id": "2663261171", "name": "Bhugipura Chowk", "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ", "nameHi": "भुगीपुरा चौक", "city": "Moga", "state": "Punjab", "latitude": 30.8184434, "longitude": 75.2190546, "shelter": true },
+      { "id": "6639524485", "name": "Dagru Village", "namePa": "ਡਾਗਰੂ ਪਿੰਡ", "nameHi": "डाग्रू ग्राम", "city": "Moga", "state": "Punjab", "latitude": 30.8341300, "longitude": 75.0476956, "shelter": null }
+    ],
+    "path": [[30.8119303, 75.3356210], [30.8184434, 75.2190546], [30.8341300, 75.0476956]]
+  },
+  {
+    "id": "M2",
+    "name": "Route M2: Moga - Dharamkot Express",
+    "namePa": "ਰੂਟ M2: ਮੋਗਾ - ਧਰਮਕੋਟ ਐਕਸਪ੍ਰੈਸ",
+    "nameHi": "रूट M2: मोगा - धरमकोट एक्सप्रेस",
+    "stops": [
+      { "id": "2677062869", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Moga", "state": "Punjab", "latitude": 30.8119303, "longitude": 75.3356210, "shelter": false },
+      { "id": "2663261171", "name": "Bhugipura Chowk", "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ", "nameHi": "भुगीपुरा चौक", "city": "Moga", "state": "Punjab", "latitude": 30.8184434, "longitude": 75.2190546, "shelter": true },
+      { "id": "5015094103", "name": "Dharamkot Bus Stop", "namePa": "ਧਰਮਕੋਟ ਬੱਸ ਸਟਾਪ", "nameHi": "धरमकोट बस स्टॉप", "city": "Moga", "state": "Punjab", "latitude": 30.9395274, "longitude": 75.2383084, "shelter": null }
+    ],
+    "path": [[30.8119303, 75.3356210], [30.8184434, 75.2190546], [30.9395274, 75.2383084]]
+  }
+]

@@ -4,10 +4,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../modelss/bus.dart';
+import '../modelss/bus_route.dart';
 import '../modelss/stop.dart';
 import '../servicess/socket_service.dart';
 
-import '../servicess/mock_data_service.dart';
 import '../servicess/road_routing_service.dart';
 import '../servicess/api_service.dart';
 import '../widget/animated_bus_marker.dart';
@@ -34,6 +34,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final Map<String, List<BusStop>> _districtStops = {};
   bool _isLoadingDistricts = false;
   String? _expandedDistrictSlug;
+  List<BusRoute> _apiRoutes = [];
 
 
   // Initial Center: Moga, Punjab Bus Stand
@@ -44,6 +45,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.initState();
     _loadRoadPolylines();
     _loadApiStops();
+    _loadApiRoutes();
     _socketService.connect().listen((buses) {
       if (mounted) {
         setState(() {
@@ -54,6 +56,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
     });
   }
 
+  Future<void> _loadApiRoutes() async {
+    try {
+      final routes = await _apiService.getRoutes();
+      if (mounted) {
+        setState(() {
+          _apiRoutes = routes;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load routes from API: $e');
+    }
+  }
+
   Future<void> _loadRoadPolylines() async {
     final polylines = <Polyline>[];
     final colors = [
@@ -62,7 +78,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     ];
 
     int colorIndex = 0;
-    for (final route in MockDataService.routes) {
+    for (final route in _apiRoutes) {
       final roadPoints = await RoadRoutingService.getRoadPath(route.path);
       polylines.add(
         Polyline(
@@ -295,7 +311,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 const SizedBox(width: 10),
                 _buildStatCard(
                   'Moga Routes',
-                  '${MockDataService.routes.length} Lines',
+                  '${_apiRoutes.length} Lines',
                   Icons.route_rounded,
                   Colors.deepOrange,
                 ),

@@ -15,8 +15,12 @@ function slugify(name) {
 // districtSlug -> { name, stops: [...] }
 let districts = new Map();
 
+// routeId -> route object
+let routes = new Map();
+
 function loadAll() {
   districts = new Map();
+  routes = new Map();
 
   const folders = fs.readdirSync(DATA_DIR, { withFileTypes: true })
     .filter((entry) => entry.isDirectory());
@@ -34,6 +38,20 @@ function loadAll() {
       });
     } catch (err) {
       console.error(`Failed to load stops for ${folder.name}:`, err.message);
+    }
+  }
+
+  const routesPath = path.join(DATA_DIR, 'routes.json');
+  if (fs.existsSync(routesPath)) {
+    try {
+      const raw = fs.readFileSync(routesPath, 'utf8');
+      const routeList = JSON.parse(raw);
+      for (const route of routeList) {
+        routes.set(route.id, route);
+      }
+      console.log(`Loaded ${routes.size} routes`);
+    } catch (err) {
+      console.error('Failed to load routes:', err.message);
     }
   }
 
@@ -85,10 +103,20 @@ function getNearbyStops(lat, lng, radiusKm = 2) {
     .sort((a, b) => a.distanceKm - b.distanceKm);
 }
 
+function getAllRoutes() {
+  return Array.from(routes.values());
+}
+
+function getRoute(routeId) {
+  return routes.get(routeId) || null;
+}
+
 module.exports = {
   loadAll,
   getDistrictList,
   getDistrict,
   getAllStops,
   getNearbyStops,
+  getAllRoutes,
+  getRoute,
 };

@@ -50,6 +50,7 @@ class BusRoute {
   final String namePa;
   final String nameHi;
   final List<RouteStop> stops;
+  final List<LatLng> path;
 
   const BusRoute({
     required this.id,
@@ -57,6 +58,7 @@ class BusRoute {
     this.namePa = '',
     this.nameHi = '',
     required this.stops,
+    required this.path,
   });
 
   String getLocalizedName(String langCode) {
@@ -66,5 +68,24 @@ class BusRoute {
   }
 
   /// Path used to animate buses along the route stops.
-  List<LatLng> get path => stops.map((s) => s.position).toList();
+  factory BusRoute.fromJson(Map<String, dynamic> json) {
+    final stopsJson = json['stops'] as List<dynamic>? ?? [];
+    final pathJson = json['path'] as List<dynamic>? ?? [];
+    return BusRoute(
+      id: json['id'].toString(),
+      name: json['name'] as String? ?? 'Bus Route',
+      namePa: json['namePa'] as String? ?? '',
+      nameHi: json['nameHi'] as String? ?? '',
+      stops: stopsJson
+          .map((s) => RouteStop.fromJson(Map<String, dynamic>.from(s as Map)))
+          .toList(),
+      path: pathJson.map((p) {
+        final coords = p as List<dynamic>;
+        return LatLng(
+          (coords[0] as num).toDouble(),
+          (coords[1] as num).toDouble(),
+        );
+      }).toList(),
+    );
+  }
 }

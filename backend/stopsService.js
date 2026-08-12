@@ -111,6 +111,41 @@ function getRoute(routeId) {
   return routes.get(routeId) || null;
 }
 
+function saveRoutes() {
+  const routesPath = path.join(DATA_DIR, 'routes.json');
+  const routeList = Array.from(routes.values());
+  fs.writeFileSync(routesPath, JSON.stringify(routeList, null, 2), 'utf8');
+}
+
+function createRoute(route) {
+  if (!route.id || !route.name || !Array.isArray(route.stops)) {
+    throw new Error('Route must have id, name, and stops array');
+  }
+  routes.set(route.id, route);
+  saveRoutes();
+  return route;
+}
+
+function updateRoute(routeId, updates) {
+  const existing = routes.get(routeId);
+  if (!existing) return null;
+
+  const updated = { ...existing, ...updates };
+  if (updates.stops && !Array.isArray(updates.stops)) {
+    throw new Error('stops must be an array');
+  }
+  routes.set(routeId, updated);
+  saveRoutes();
+  return updated;
+}
+
+function deleteRoute(routeId) {
+  const deleted = routes.get(routeId);
+  routes.delete(routeId);
+  saveRoutes();
+  return deleted || null;
+}
+
 module.exports = {
   loadAll,
   getDistrictList,
@@ -119,4 +154,7 @@ module.exports = {
   getNearbyStops,
   getAllRoutes,
   getRoute,
+  createRoute,
+  updateRoute,
+  deleteRoute,
 };

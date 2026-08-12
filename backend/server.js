@@ -24,6 +24,9 @@ app.get('/', (req, res) => {
       stops: '/api/stops',
       districtStops: '/api/stops/:district',
       nearbyStops: '/api/nearby-stops?lat=&lng=&radiusKm=',
+      createRoute: 'POST /api/routes',
+      updateRoute: 'PUT /api/routes/:id',
+      deleteRoute: 'DELETE /api/routes/:id',
     },
   });
 });
@@ -76,6 +79,35 @@ app.get('/api/routes/:id', (req, res) => {
   }
 
   res.json(route);
+});
+
+app.post('/api/routes', express.json(), (req, res) => {
+  try {
+    const route = stopsService.createRoute(req.body);
+    res.status(201).json(route);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.put('/api/routes/:id', express.json(), (req, res) => {
+  const updated = stopsService.updateRoute(req.params.id, req.body);
+
+  if (!updated) {
+    return res.status(404).json({ error: 'Route not found' });
+  }
+
+  res.json(updated);
+});
+
+app.delete('/api/routes/:id', (req, res) => {
+  const deleted = stopsService.deleteRoute(req.params.id);
+
+  if (!deleted) {
+    return res.status(404).json({ error: 'Route not found' });
+  }
+
+  res.json({ deleted: true, route: deleted });
 });
 
 const server = http.createServer(app);

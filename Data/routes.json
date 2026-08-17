@@ -5,11 +5,54 @@
     "namePa": "ਰੂਟ M1: ਮੋਗਾ ਕੇਂਦਰੀ - ਡਾਗਰੂ ਲਾਈਨ",
     "nameHi": "रूट M1: मोगा केंद्रीय - डाग्रू लाइन",
     "stops": [
-      { "id": "2677062869", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Moga", "state": "Punjab", "latitude": 30.8119303, "longitude": 75.3356210, "shelter": false },
-      { "id": "2663261171", "name": "Bhugipura Chowk", "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ", "nameHi": "भुगीपुरा चौक", "city": "Moga", "state": "Punjab", "latitude": 30.8184434, "longitude": 75.2190546, "shelter": true },
-      { "id": "6639524485", "name": "Dagru Village", "namePa": "ਡਾਗਰੂ ਪਿੰਡ", "nameHi": "डाग्रू ग्राम", "city": "Moga", "state": "Punjab", "latitude": 30.8341300, "longitude": 75.0476956, "shelter": null }
+      {
+        "id": "2677062869",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.8119303,
+        "longitude": 75.335621,
+        "shelter": false
+      },
+      {
+        "id": "2663261171",
+        "name": "Bhugipura Chowk",
+        "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ",
+        "nameHi": "भुगीपुरा चौक",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.8184434,
+        "longitude": 75.2190546,
+        "shelter": true
+      },
+      {
+        "id": "6639524485",
+        "name": "Dagru Village",
+        "namePa": "ਡਾਗਰੂ ਪਿੰਡ",
+        "nameHi": "डाग्रू ग्राम",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.83413,
+        "longitude": 75.0476956,
+        "shelter": null
+      }
     ],
-    "path": [[30.8119303, 75.3356210], [30.8184434, 75.2190546], [30.8341300, 75.0476956]]
+    "path": [
+      [
+        30.8119303,
+        75.335621
+      ],
+      [
+        30.8184434,
+        75.2190546
+      ],
+      [
+        30.83413,
+        75.0476956
+      ]
+    ]
   },
   {
     "id": "M2",
@@ -17,11 +60,54 @@
     "namePa": "ਰੂਟ M2: ਮੋਗਾ - ਧਰਮਕੋਟ ਐਕਸਪ੍ਰੈਸ",
     "nameHi": "रूट M2: मोगा - धरमकोट एक्सप्रेस",
     "stops": [
-      { "id": "2677062869", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Moga", "state": "Punjab", "latitude": 30.8119303, "longitude": 75.3356210, "shelter": false },
-      { "id": "2663261171", "name": "Bhugipura Chowk", "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ", "nameHi": "भुगीपुरा चौक", "city": "Moga", "state": "Punjab", "latitude": 30.8184434, "longitude": 75.2190546, "shelter": true },
-      { "id": "5015094103", "name": "Dharamkot Bus Stop", "namePa": "ਧਰਮਕੋਟ ਬੱਸ ਸਟਾਪ", "nameHi": "धरमकोट बस स्टॉप", "city": "Moga", "state": "Punjab", "latitude": 30.9395274, "longitude": 75.2383084, "shelter": null }
+      {
+        "id": "2677062869",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.8119303,
+        "longitude": 75.335621,
+        "shelter": false
+      },
+      {
+        "id": "2663261171",
+        "name": "Bhugipura Chowk",
+        "namePa": "ਭੁਗੀਪੁਰਾ ਚੌਕ",
+        "nameHi": "भुगीपुरा चौक",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.8184434,
+        "longitude": 75.2190546,
+        "shelter": true
+      },
+      {
+        "id": "5015094103",
+        "name": "Dharamkot Bus Stop",
+        "namePa": "ਧਰਮਕੋਟ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "धरमकोट बस स्टॉप",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.9395274,
+        "longitude": 75.2383084,
+        "shelter": null
+      }
     ],
-    "path": [[30.8119303, 75.3356210], [30.8184434, 75.2190546], [30.9395274, 75.2383084]]
+    "path": [
+      [
+        30.8119303,
+        75.335621
+      ],
+      [
+        30.8184434,
+        75.2190546
+      ],
+      [
+        30.9395274,
+        75.2383084
+      ]
+    ]
   },
   {
     "id": "M3",
@@ -29,24 +115,124 @@
     "namePa": "ਰੂਟ M3: ਮੋਗਾ ਰਿੰਗ ਰੋਡ ਕੈਨੈਕਟਰ",
     "nameHi": "रूट M3: मोगा रिंग रोड कनेक्टर",
     "stops": [
-      { "id": "2677062869", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Moga", "state": "Punjab", "latitude": 30.8119303, "longitude": 75.3356210, "shelter": false },
-      { "id": "5015094103", "name": "Dharamkot Bus Stop", "namePa": "ਧਰਮਕੋਟ ਬੱਸ ਸਟਾਪ", "nameHi": "धरमकोट बस स्टॉप", "city": "Moga", "state": "Punjab", "latitude": 30.9395274, "longitude": 75.2383084, "shelter": null },
-      { "id": "6639524485", "name": "Dagru Village", "namePa": "ਡਾਗਰੂ ਪਿੰਡ", "nameHi": "डाग्रू ग्राम", "city": "Moga", "state": "Punjab", "latitude": 30.8341300, "longitude": 75.0476956, "shelter": null }
+      {
+        "id": "2677062869",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.8119303,
+        "longitude": 75.335621,
+        "shelter": false
+      },
+      {
+        "id": "5015094103",
+        "name": "Dharamkot Bus Stop",
+        "namePa": "ਧਰਮਕੋਟ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "धरमकोट बस स्टॉप",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.9395274,
+        "longitude": 75.2383084,
+        "shelter": null
+      },
+      {
+        "id": "6639524485",
+        "name": "Dagru Village",
+        "namePa": "ਡਾਗਰੂ ਪਿੰਡ",
+        "nameHi": "डाग्रू ग्राम",
+        "city": "Moga",
+        "state": "Punjab",
+        "latitude": 30.83413,
+        "longitude": 75.0476956,
+        "shelter": null
+      }
     ],
-    "path": [[30.8119303, 75.3356210], [30.9395274, 75.2383084], [30.8341300, 75.0476956]]
+    "path": [
+      [
+        30.8119303,
+        75.335621
+      ],
+      [
+        30.9395274,
+        75.2383084
+      ],
+      [
+        30.83413,
+        75.0476956
+      ]
+    ]
   },
   {
     "id": "L1",
-    "name": "Route L1: Ludhiana - Ghawaddi to Zirakh",
+    "name": "Updated Test Route",
     "namePa": "ਰੂਟ L1: ਲੁਧਿਆਣਾ - ਘਵੱਡੀ ਤੋਂ ਜ਼ਿਰੱਖ",
     "nameHi": "रूट L1: लुधियाना - घवड्डी से जिरख",
     "stops": [
-      { "id": "243866000", "name": "Ghawaddi Bus Stop", "namePa": "ਘਵੱਡੀ ਬੱਸ ਸਟਾਪ", "nameHi": "घवड्डी बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.7795486, "longitude": 75.8910720, "shelter": null },
-      { "id": "243866068", "name": "Bhutta Bus Stop", "namePa": "ਭੁੱਟਾ ਬੱਸ ਸਟਾਪ", "nameHi": "भुट्टा बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.7658111, "longitude": 75.9133202, "shelter": null },
-      { "id": "928479041", "name": "Dhaul Khurd Bus Stop", "namePa": "ਧੌਲ ਖੁਰਦ ਬੱਸ ਸਟਾਪ", "nameHi": "धौल खुर्द बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.6797705, "longitude": 75.9488350, "shelter": null },
-      { "id": "928527403", "name": "Zirakh Main Gate Bus Stop", "namePa": "ਜ਼ਿਰੱਖ ਮੁੱਖ ਗੇਟ ਬੱਸ ਸਟਾਪ", "nameHi": "जिरख मुख्य गेट बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.7007897, "longitude": 75.9519209, "shelter": null }
+      {
+        "id": "243866000",
+        "name": "Ghawaddi Bus Stop",
+        "namePa": "ਘਵੱਡੀ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "घवड्डी बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.7795486,
+        "longitude": 75.891072,
+        "shelter": null
+      },
+      {
+        "id": "243866068",
+        "name": "Bhutta Bus Stop",
+        "namePa": "ਭੁੱਟਾ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "भुट्टा बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.7658111,
+        "longitude": 75.9133202,
+        "shelter": null
+      },
+      {
+        "id": "928479041",
+        "name": "Dhaul Khurd Bus Stop",
+        "namePa": "ਧੌਲ ਖੁਰਦ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "धौल खुर्द बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.6797705,
+        "longitude": 75.948835,
+        "shelter": null
+      },
+      {
+        "id": "928527403",
+        "name": "Zirakh Main Gate Bus Stop",
+        "namePa": "ਜ਼ਿਰੱਖ ਮੁੱਖ ਗੇਟ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "जिरख मुख्य गेट बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.7007897,
+        "longitude": 75.9519209,
+        "shelter": null
+      }
     ],
-    "path": [[30.7795486, 75.891072], [30.7658111, 75.9133202], [30.6797705, 75.948835], [30.7007897, 75.9519209]]
+    "path": [
+      [
+        30.7795486,
+        75.891072
+      ],
+      [
+        30.7658111,
+        75.9133202
+      ],
+      [
+        30.6797705,
+        75.948835
+      ],
+      [
+        30.7007897,
+        75.9519209
+      ]
+    ]
   },
   {
     "id": "L2",
@@ -54,12 +240,69 @@
     "namePa": "ਰੂਟ L2: ਲੁਧਿਆਣਾ ਸ਼ਹਿਰ ਲੂਪ",
     "nameHi": "रूट L2: लुधियाना शहर लूप",
     "stops": [
-      { "id": "395134991", "name": "Post Office", "namePa": "ਪੋਸਟ ਆਫਿਸ", "nameHi": "पोस्ट ऑफिस", "city": "Ludhiana", "state": "Punjab", "latitude": 30.9030918, "longitude": 75.8373725, "shelter": null },
-      { "id": "243866072", "name": "Bhutta Bus Stop", "namePa": "ਭੁੱਟਾ ਬੱਸ ਸਟਾਪ", "nameHi": "भुट्टा बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.7635647, "longitude": 75.9169137, "shelter": null },
-      { "id": "928535162", "name": "Rara Sahib Bus Stop", "namePa": "ਰਾਰਾ ਸਾਹਿਬ ਬੱਸ ਸਟਾਪ", "nameHi": "रारा साहिब बस स्टॉप", "city": "Ludhiana", "state": "Punjab", "latitude": 30.7277785, "longitude": 75.9444462, "shelter": null },
-      { "id": "2597911630", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Ludhiana", "state": "Punjab", "latitude": 30.8118392, "longitude": 75.4768418, "shelter": null }
+      {
+        "id": "395134991",
+        "name": "Post Office",
+        "namePa": "ਪੋਸਟ ਆਫਿਸ",
+        "nameHi": "पोस्ट ऑफिस",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.9030918,
+        "longitude": 75.8373725,
+        "shelter": null
+      },
+      {
+        "id": "243866072",
+        "name": "Bhutta Bus Stop",
+        "namePa": "ਭੁੱਟਾ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "भुट्टा बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.7635647,
+        "longitude": 75.9169137,
+        "shelter": null
+      },
+      {
+        "id": "928535162",
+        "name": "Rara Sahib Bus Stop",
+        "namePa": "ਰਾਰਾ ਸਾਹਿਬ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "रारा साहिब बस स्टॉप",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.7277785,
+        "longitude": 75.9444462,
+        "shelter": null
+      },
+      {
+        "id": "2597911630",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Ludhiana",
+        "state": "Punjab",
+        "latitude": 30.8118392,
+        "longitude": 75.4768418,
+        "shelter": null
+      }
     ],
-    "path": [[30.9030918, 75.8373725], [30.7635647, 75.9169137], [30.7277785, 75.9444462], [30.8118392, 75.4768418]]
+    "path": [
+      [
+        30.9030918,
+        75.8373725
+      ],
+      [
+        30.7635647,
+        75.9169137
+      ],
+      [
+        30.7277785,
+        75.9444462
+      ],
+      [
+        30.8118392,
+        75.4768418
+      ]
+    ]
   },
   {
     "id": "S1",
@@ -67,11 +310,54 @@
     "namePa": "ਰੂਟ S1: ਸੰਗਰੂਰ - ਹਰਿਆਉ ਕਾਰਿਡੋਰ",
     "nameHi": "रूट S1: संगरुर - हरियाउ करिडोर",
     "stops": [
-      { "id": "2615926545", "name": "Fountain Chowk", "namePa": "ਫ਼ਵੰਟਨ ਚੌਕ", "nameHi": "फॉन्टन चौक", "city": "Sangrur", "state": "Punjab", "latitude": 30.1335184, "longitude": 75.8034693, "shelter": null },
-      { "id": "4683675146", "name": "Haryau", "namePa": "ਹਰਿਆਉ", "nameHi": "हरियाउ", "city": "Sangrur", "state": "Punjab", "latitude": 29.9609995, "longitude": 75.7096423, "shelter": null },
-      { "id": "4683679834", "name": "Haryau Junction Bus Stop", "namePa": "ਹਰਿਆਉ ਜੰਕਸ਼ਨ ਬੱਸ ਸਟਾਪ", "nameHi": "हरियाउ जंक्शन बस स्टॉप", "city": "Sangrur", "state": "Punjab", "latitude": 29.9624734, "longitude": 75.7036816, "shelter": null }
+      {
+        "id": "2615926545",
+        "name": "Fountain Chowk",
+        "namePa": "ਫ਼ਵੰਟਨ ਚੌਕ",
+        "nameHi": "फॉन्टन चौक",
+        "city": "Sangrur",
+        "state": "Punjab",
+        "latitude": 30.1335184,
+        "longitude": 75.8034693,
+        "shelter": null
+      },
+      {
+        "id": "4683675146",
+        "name": "Haryau",
+        "namePa": "ਹਰਿਆਉ",
+        "nameHi": "हरियाउ",
+        "city": "Sangrur",
+        "state": "Punjab",
+        "latitude": 29.9609995,
+        "longitude": 75.7096423,
+        "shelter": null
+      },
+      {
+        "id": "4683679834",
+        "name": "Haryau Junction Bus Stop",
+        "namePa": "ਹਰਿਆਉ ਜੰਕਸ਼ਨ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "हरियाउ जंक्शन बस स्टॉप",
+        "city": "Sangrur",
+        "state": "Punjab",
+        "latitude": 29.9624734,
+        "longitude": 75.7036816,
+        "shelter": null
+      }
     ],
-    "path": [[30.1335184, 75.8034693], [29.9609995, 75.7096423], [29.9624734, 75.7036816]]
+    "path": [
+      [
+        30.1335184,
+        75.8034693
+      ],
+      [
+        29.9609995,
+        75.7096423
+      ],
+      [
+        29.9624734,
+        75.7036816
+      ]
+    ]
   },
   {
     "id": "P1",
@@ -79,11 +365,54 @@
     "namePa": "ਰੂਟ P1: ਪਟਿਆਲਾ - ਲੋਕਲ ਤੋਂ ਬਹਾਦੁਰਗੜ੍ਹ",
     "nameHi": "रूट P1: पटियाला - लोकल से बहादुरगढ़",
     "stops": [
-      { "id": "4391121189", "name": "Local Bus Stop", "namePa": "ਲੋਕਲ ਬੱਸ ਸਟਾਪ", "nameHi": "लोकल बस स्टॉप", "city": "Patiala", "state": "Punjab", "latitude": 30.5188980, "longitude": 76.7230678, "shelter": null },
-      { "id": "12629680581", "name": "Aam Aadmi Bus Stand Pasiana", "namePa": "ਆਮ ਆਦਮੀ ਬੱਸ ਸਟੈਂਡ ਪਸਿਆਨਾ", "nameHi": "आम आदमी बस स्टैंड पसियाना", "city": "Patiala", "state": "Punjab", "latitude": 30.3045629, "longitude": 76.3192565, "shelter": null },
-      { "id": "3431049783", "name": "Bahadurgarh Bus Stop", "namePa": "ਬਹਾਦੁਰਗੜ੍ਹ ਬੱਸ ਸਟਾਪ", "nameHi": "बहादुरगढ़ बस स्टॉप", "city": "Patiala", "state": "Punjab", "latitude": 30.3690385, "longitude": 76.4722026, "shelter": null }
+      {
+        "id": "4391121189",
+        "name": "Local Bus Stop",
+        "namePa": "ਲੋਕਲ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "लोकल बस स्टॉप",
+        "city": "Patiala",
+        "state": "Punjab",
+        "latitude": 30.518898,
+        "longitude": 76.7230678,
+        "shelter": null
+      },
+      {
+        "id": "12629680581",
+        "name": "Aam Aadmi Bus Stand Pasiana",
+        "namePa": "ਆਮ ਆਦਮੀ ਬੱਸ ਸਟੈਂਡ ਪਸਿਆਨਾ",
+        "nameHi": "आम आदमी बस स्टैंड पसियाना",
+        "city": "Patiala",
+        "state": "Punjab",
+        "latitude": 30.3045629,
+        "longitude": 76.3192565,
+        "shelter": null
+      },
+      {
+        "id": "3431049783",
+        "name": "Bahadurgarh Bus Stop",
+        "namePa": "ਬਹਾਦੁਰਗੜ੍ਹ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "बहादुरगढ़ बस स्टॉप",
+        "city": "Patiala",
+        "state": "Punjab",
+        "latitude": 30.3690385,
+        "longitude": 76.4722026,
+        "shelter": null
+      }
     ],
-    "path": [[30.5188980, 76.7230678], [30.3045629, 76.3192565], [30.3690385, 76.4722026]]
+    "path": [
+      [
+        30.518898,
+        76.7230678
+      ],
+      [
+        30.3045629,
+        76.3192565
+      ],
+      [
+        30.3690385,
+        76.4722026
+      ]
+    ]
   },
   {
     "id": "B1",
@@ -91,11 +420,54 @@
     "namePa": "ਰੂਟ B1: ਬਰਨਾਲਾ ਸ਼ਹਿਰ ਸർਕਿਟ",
     "nameHi": "रूट B1: बरनाला शहर सर्किट",
     "stops": [
-      { "id": "2445334589", "name": "Sodha Patti Bus Stand", "namePa": "ਸੋਧਾ ਪੱਟੀ ਬੱਸ ਸਟੈਂਡ", "nameHi": "सोघा पट्टी बस स्टैंड", "city": "Barnala", "state": "Punjab", "latitude": 30.5544006, "longitude": 75.6559617, "shelter": null },
-      { "id": "2469986308", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Barnala", "state": "Punjab", "latitude": 30.5551908, "longitude": 75.6522895, "shelter": null },
-      { "id": "8761188626", "name": "Gurudwara Sahib Bus Stop", "namePa": "ਗੁਰਦੁਆਰਾ ਸਾਹਿਬ ਬੱਸ ਸਟਾਪ", "nameHi": "गुरुद्वारा साहिब बस स्टॉप", "city": "Barnala", "state": "Punjab", "latitude": 30.3386971, "longitude": 75.3880334, "shelter": null }
+      {
+        "id": "2445334589",
+        "name": "Sodha Patti Bus Stand",
+        "namePa": "ਸੋਧਾ ਪੱਟੀ ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "सोघा पट्टी बस स्टैंड",
+        "city": "Barnala",
+        "state": "Punjab",
+        "latitude": 30.5544006,
+        "longitude": 75.6559617,
+        "shelter": null
+      },
+      {
+        "id": "2469986308",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Barnala",
+        "state": "Punjab",
+        "latitude": 30.5551908,
+        "longitude": 75.6522895,
+        "shelter": null
+      },
+      {
+        "id": "8761188626",
+        "name": "Gurudwara Sahib Bus Stop",
+        "namePa": "ਗੁਰਦੁਆਰਾ ਸਾਹਿਬ ਬੱਸ ਸਟਾਪ",
+        "nameHi": "गुरुद्वारा साहिब बस स्टॉप",
+        "city": "Barnala",
+        "state": "Punjab",
+        "latitude": 30.3386971,
+        "longitude": 75.3880334,
+        "shelter": null
+      }
     ],
-    "path": [[30.5544006, 75.6559617], [30.5551908, 75.6522895], [30.3386971, 75.3880334]]
+    "path": [
+      [
+        30.5544006,
+        75.6559617
+      ],
+      [
+        30.5551908,
+        75.6522895
+      ],
+      [
+        30.3386971,
+        75.3880334
+      ]
+    ]
   },
   {
     "id": "MK1",
@@ -103,12 +475,69 @@
     "namePa": "ਰੂਟ MK1: ਮਲੇਰਕੋਟਲਾ - ਕੁਪ ਕਲਾਨ ਲੂਪ",
     "nameHi": "रूट MK1: मलेरकोटला - कुप कलान लूप",
     "stops": [
-      { "id": "1462910938", "name": "Bus Stand", "namePa": "ਬੱਸ ਸਟੈਂਡ", "nameHi": "बस स्टैंड", "city": "Malerkotla", "state": "Punjab", "latitude": 30.5212963, "longitude": 75.8797945, "shelter": null },
-      { "id": "1411826866", "name": "Malerkotla", "namePa": "ਮਲੇਰਕੋਟਲਾ", "nameHi": "मलेरकोटला", "city": "Malerkotla", "state": "Punjab", "latitude": 30.5407613, "longitude": 75.8808599, "shelter": null },
-      { "id": "1411835705", "name": "Amargarh", "namePa": "ਅਮਰਗੜ੍ਹ", "nameHi": "अमरगढ़", "city": "Malerkotla", "state": "Punjab", "latitude": 30.4641810, "longitude": 76.0093164, "shelter": null },
-      { "id": "3300123709", "name": "Kup Kalan", "namePa": "ਕੁਪ ਕਲਾਨ", "nameHi": "कुप कलान", "city": "Malerkotla", "state": "Punjab", "latitude": 30.6143473, "longitude": 75.8772737, "shelter": null }
+      {
+        "id": "1462910938",
+        "name": "Bus Stand",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ",
+        "nameHi": "बस स्टैंड",
+        "city": "Malerkotla",
+        "state": "Punjab",
+        "latitude": 30.5212963,
+        "longitude": 75.8797945,
+        "shelter": null
+      },
+      {
+        "id": "1411826866",
+        "name": "Malerkotla",
+        "namePa": "ਮਲੇਰਕੋਟਲਾ",
+        "nameHi": "मलेरकोटला",
+        "city": "Malerkotla",
+        "state": "Punjab",
+        "latitude": 30.5407613,
+        "longitude": 75.8808599,
+        "shelter": null
+      },
+      {
+        "id": "1411835705",
+        "name": "Amargarh",
+        "namePa": "ਅਮਰਗੜ੍ਹ",
+        "nameHi": "अमरगढ़",
+        "city": "Malerkotla",
+        "state": "Punjab",
+        "latitude": 30.464181,
+        "longitude": 76.0093164,
+        "shelter": null
+      },
+      {
+        "id": "3300123709",
+        "name": "Kup Kalan",
+        "namePa": "ਕੁਪ ਕਲਾਨ",
+        "nameHi": "कुप कलान",
+        "city": "Malerkotla",
+        "state": "Punjab",
+        "latitude": 30.6143473,
+        "longitude": 75.8772737,
+        "shelter": null
+      }
     ],
-    "path": [[30.5212963, 75.8797945], [30.5407613, 75.8808599], [30.4641810, 76.0093164], [30.6143473, 75.8772737]]
+    "path": [
+      [
+        30.5212963,
+        75.8797945
+      ],
+      [
+        30.5407613,
+        75.8808599
+      ],
+      [
+        30.464181,
+        76.0093164
+      ],
+      [
+        30.6143473,
+        75.8772737
+      ]
+    ]
   },
   {
     "id": "BT1",
@@ -116,10 +545,53 @@
     "namePa": "ਰੂਟ BT1: ਥੰਨੇਦਾਰ - ਬਿਬੀਆਂ ਵਾਲਾ ਤੋਂ ਭੁੰਡੇਰ",
     "nameHi": "रूट BT1: बथिंडा - बिबियांवाला से भुंडेर",
     "stops": [
-      { "id": "245769612", "name": "Bibiwala Chowk", "namePa": "ਬਿਬੀਆਂ ਵਾਲਾ ਚੌਕ", "nameHi": "बिबियांवाला चौक", "city": "Bathinda", "state": "Punjab", "latitude": 30.2257544, "longitude": 74.9620852, "shelter": null },
-      { "id": "9662766724", "name": "Bus Stand Bhunder", "namePa": "ਬੱਸ ਸਟੈਂਡ ਭੁੰਡੇਰ", "nameHi": "बस स्टैंड भुंडेर", "city": "Bathinda", "state": "Punjab", "latitude": 30.2105025, "longitude": 75.2206816, "shelter": null },
-      { "id": "9662766725", "name": "Small Bus Stand Bhunder", "namePa": "ਛੋਟਾ ਬੱਸ ਸਟੈਂਡ ਭੁੰਡੇਰ", "nameHi": "छोटा बस स्टैंड भुंडेर", "city": "Bathinda", "state": "Punjab", "latitude": 30.2055339, "longitude": 75.2216294, "shelter": null }
+      {
+        "id": "245769612",
+        "name": "Bibiwala Chowk",
+        "namePa": "ਬਿਬੀਆਂ ਵਾਲਾ ਚੌਕ",
+        "nameHi": "बिबियांवाला चौक",
+        "city": "Bathinda",
+        "state": "Punjab",
+        "latitude": 30.2257544,
+        "longitude": 74.9620852,
+        "shelter": null
+      },
+      {
+        "id": "9662766724",
+        "name": "Bus Stand Bhunder",
+        "namePa": "ਬੱਸ ਸਟੈਂਡ ਭੁੰਡੇਰ",
+        "nameHi": "बस स्टैंड भुंडेर",
+        "city": "Bathinda",
+        "state": "Punjab",
+        "latitude": 30.2105025,
+        "longitude": 75.2206816,
+        "shelter": null
+      },
+      {
+        "id": "9662766725",
+        "name": "Small Bus Stand Bhunder",
+        "namePa": "ਛੋਟਾ ਬੱਸ ਸਟੈਂਡ ਭੁੰਡੇਰ",
+        "nameHi": "छोटा बस स्टैंड भुंडेर",
+        "city": "Bathinda",
+        "state": "Punjab",
+        "latitude": 30.2055339,
+        "longitude": 75.2216294,
+        "shelter": null
+      }
     ],
-    "path": [[30.2257544, 74.9620852], [30.2105025, 75.2206816], [30.2055339, 75.2216294]]
+    "path": [
+      [
+        30.2257544,
+        74.9620852
+      ],
+      [
+        30.2105025,
+        75.2206816
+      ],
+      [
+        30.2055339,
+        75.2216294
+      ]
+    ]
   }
 ]

@@ -39,7 +39,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   void initState() {
     super.initState();
     _loadRoutes();
-    _restoreState();
   }
 
   Future<void> _loadRoutes() async {
@@ -50,6 +49,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           _routes = routes;
         });
       }
+      _restoreState();
     } catch (e) {
       // ignore: avoid_print
       print('Failed to load routes from API: $e');
@@ -218,6 +218,7 @@ class _RoutePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<BusRoute>(
+      key: ValueKey(selected?.id ?? ''),
       initialValue: selected,
       decoration: const InputDecoration(
         labelText: 'Route',
@@ -226,7 +227,7 @@ class _RoutePicker extends StatelessWidget {
       items: routes
           .map((r) => DropdownMenuItem(value: r, child: Text(r.name)))
           .toList(),
-      onChanged: onChanged,
+      onChanged: routes.isEmpty ? null : onChanged,
     );
   }
 }
@@ -332,3 +333,5 @@ class _IssueSheetState extends State<_IssueSheet> {
     );
   }
 }
+
+

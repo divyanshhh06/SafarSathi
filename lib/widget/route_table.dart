@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../modelss/route_model.dart';
+import '../modelss/bus_route.dart';
 
 class RouteTable extends StatelessWidget {
   final List<BusRoute> routes;
@@ -104,12 +104,12 @@ class RouteTable extends StatelessWidget {
                             ),
                           ),
                         ),
-                        DataCell(Text(route.startPoint)),
-                        DataCell(Text(route.endPoint)),
-                        DataCell(Text(route.stopIds.length.toString())),
-                        DataCell(Text(route.totalBuses.toString())),
+                        DataCell(Text(route.stops.isNotEmpty ? route.stops.first.name : '-')),
+                        DataCell(Text(route.stops.isNotEmpty ? route.stops.last.name : '-')),
+                        DataCell(Text(route.stops.length.toString())),
+                        DataCell(const Text('0')),
                         DataCell(
-                          _StatusBadge(status: route.status),
+                          _StatusBadge(status: 'Active'),
                         ),
                         DataCell(
                           Row(
@@ -175,4 +175,6 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 }
+
+
 

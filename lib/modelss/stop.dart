@@ -23,6 +23,8 @@ class District {
 class BusStop {
   final String id;
   final String name;
+  final String namePa;
+  final String nameHi;
   final String city;
   final String state;
   final String country;
@@ -34,8 +36,10 @@ class BusStop {
   const BusStop({
     required this.id,
     required this.name,
-    required this.city,
-    required this.state,
+    this.namePa = '',
+    this.nameHi = '',
+    this.city = '',
+    this.state = '',
     this.country = 'India',
     required this.position,
     this.type,
@@ -49,6 +53,8 @@ class BusStop {
     return BusStop(
       id: json['id']?.toString() ?? json['stop_id']?.toString() ?? '',
       name: json['name']?.toString() ?? json['stop_name']?.toString() ?? 'Bus Stop',
+      namePa: json['namePa']?.toString() ?? '',
+      nameHi: json['nameHi']?.toString() ?? '',
       city: json['city']?.toString() ?? '',
       state: json['state']?.toString() ?? '',
       country: json['country']?.toString() ?? 'India',
@@ -62,10 +68,28 @@ class BusStop {
     );
   }
 
+  String getLocalizedName(String langCode) {
+    if (langCode == 'pa') return namePa.isNotEmpty ? namePa : name;
+    if (langCode == 'hi') return nameHi.isNotEmpty ? nameHi : name;
+    return name;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BusStop &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
+      'namePa': namePa,
+      'nameHi': nameHi,
       'city': city,
       'state': state,
       'country': country,
@@ -80,6 +104,8 @@ class BusStop {
   BusStop copyWith({
     String? id,
     String? name,
+    String? namePa,
+    String? nameHi,
     String? city,
     String? state,
     String? country,
@@ -91,6 +117,8 @@ class BusStop {
     return BusStop(
       id: id ?? this.id,
       name: name ?? this.name,
+      namePa: namePa ?? this.namePa,
+      nameHi: nameHi ?? this.nameHi,
       city: city ?? this.city,
       state: state ?? this.state,
       country: country ?? this.country,

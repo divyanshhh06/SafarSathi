@@ -51,6 +51,7 @@ class BusRoute {
   final String nameHi;
   final List<RouteStop> stops;
   final List<LatLng> path;
+  final String? color;
 
   const BusRoute({
     required this.id,
@@ -59,6 +60,7 @@ class BusRoute {
     this.nameHi = '',
     required this.stops,
     required this.path,
+    this.color,
   });
 
   String getLocalizedName(String langCode) {
@@ -67,7 +69,6 @@ class BusRoute {
     return name;
   }
 
-  /// Path used to animate buses along the route stops.
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     final stopsJson = json['stops'] as List<dynamic>? ?? [];
     final pathJson = json['path'] as List<dynamic>? ?? [];
@@ -86,6 +87,61 @@ class BusRoute {
           (coords[1] as num).toDouble(),
         );
       }).toList(),
+      color: json['color'] as String?,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BusRoute &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'namePa': namePa,
+      'nameHi': nameHi,
+      'stops': stops.map((s) {
+        return {
+          'id': s.id,
+          'name': s.name,
+          'namePa': s.namePa,
+          'nameHi': s.nameHi,
+          'city': s.city,
+          'state': s.state,
+          'latitude': s.position.latitude,
+          'longitude': s.position.longitude,
+          'shelter': s.shelter,
+        };
+      }).toList(),
+      'path': path.map((p) => [p.latitude, p.longitude]).toList(),
+      'color': color,
+    };
+  }
+
+  BusRoute copyWith({
+    String? id,
+    String? name,
+    String? namePa,
+    String? nameHi,
+    List<RouteStop>? stops,
+    List<LatLng>? path,
+    String? color,
+  }) {
+    return BusRoute(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      namePa: namePa ?? this.namePa,
+      nameHi: nameHi ?? this.nameHi,
+      stops: stops ?? this.stops,
+      path: path ?? this.path,
+      color: color ?? this.color,
     );
   }
 }

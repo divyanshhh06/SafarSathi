@@ -8,7 +8,7 @@ import '../modelss/bus.dart';
 
 /// Single source of truth for live bus data and BE-1 Socket.IO backend communication.
 class SocketService {
-  static String get backendUrl => 'https://safarsathi-1-63eu.onrender.com';
+  static String get backendUrl => 'https://safarsathi-backend-eteo.onrender.com';
 
   io.Socket? _socket;
   final StreamController<List<Bus>> _controller =
@@ -204,4 +204,4 @@ class SocketService {
     _socket?.dispose();
     _controller.close();
   }
-}
+}

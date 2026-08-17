@@ -7,7 +7,7 @@ import '../modelss/bus_route.dart';
 import '../modelss/stop.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://safarsathi-1-63eu.onrender.com/api';
+  static const String baseUrl = 'https://safarsathi-backend-eteo.onrender.com/api';
 
   final http.Client _client;
 

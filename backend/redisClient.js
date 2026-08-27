@@ -1,65 +1,35 @@
 require('dotenv').config();
 const Redis = require('ioredis');
 
-const memoryCache = new Map();
-let isRedisConnected = false;
-
-const isUpstash = /upstash\.io$/.test(
-  (process.env.REDIS_HOST || '').replace(/^https?:\/\//, '')
-);
-
+// Connect to local or remote Redis instance
 const redis = new Redis({
-  host: (process.env.REDIS_HOST || '127.0.0.1').replace(/^https?:\/\//, ''),
+  host: process.env.REDIS_HOST || '127.0.0.1',
   port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD,
-  ...(isUpstash ? { tls: {} } : {}),
-  maxRetriesPerRequest: 1,
-  retryStrategy(times) {
-    if (times > 2) {
-      console.warn('⚠️ Redis unreachable, using in-memory spatial cache.');
-      return null;
-    }
-    return 1000;
-  }
 });
 
-redis.on('connect', () => {
-  isRedisConnected = true;
-  console.log('⚡ Redis Spatial Cache Connected Successfully');
-});
-
-redis.on('error', (err) => {
-  isRedisConnected = false;
-  console.error('❌ Redis Connection Note:', err.message);
-});
-
+/**
+ * Cache a driver's live coordinate.
+ * IMPORTANT: Redis GEOADD syntax requires LONGITUDE first, then LATITUDE.
+ */
 async function updateBusLocation(busId, lat, lng) {
-  memoryCache.set(busId, { lat, lng, timestamp: Date.now() });
-  if (isRedisConnected) {
-    try {
-      await redis.hset(`bus:${busId}`, 'lat', lat, 'lng', lng, 'updatedAt', Date.now());
-    } catch (err) {
-      // fallback to memoryCache is already updated
-    }
-  }
+  // GEOADD live_buses <longitude> <latitude> <member_id>
+  await redis.geoadd('live_buses', lng, lat, busId);
 }
 
+/**
+ * Sub-100ms spatial lookup from RAM.
+ */
 async function getBusLocation(busId) {
-  if (isRedisConnected) {
-    try {
-      const data = await redis.hgetall(`bus:${busId}`);
-      if (data && data.lat) {
-        return { lat: parseFloat(data.lat), lng: parseFloat(data.lng) };
-      }
-    } catch (err) {
-      // fallback
-    }
-  }
-  return memoryCache.get(busId) || null;
+  const pos = await redis.geopos('live_buses', busId);
+
+  // Return null if location hasn't been set or is empty
+  if (!pos || !pos[0] || !pos[0][0]) return null;
+
+  // pos[0] returns strings: [longitude, latitude]
+  return {
+    lat: parseFloat(pos[0][1]),
+    lng: parseFloat(pos[0][0])
+  };
 }
 
-module.exports = {
-  redis,
-  updateBusLocation,
-  getBusLocation
-};
+module.exports = { redis, updateBusLocation, getBusLocation };

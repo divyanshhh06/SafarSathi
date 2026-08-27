@@ -1,6 +1,6 @@
 const { io } = require('socket.io-client');
 
-const SOCKET_URL = process.env.SOCKET_URL || 'https://safarsathi-3jjl.onrender.com';
+const SOCKET_URL = 'http://localhost:3000';
 
 // 1. Simulate Commuter Client
 const commuterSocket = io(SOCKET_URL);

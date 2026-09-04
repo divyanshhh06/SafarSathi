@@ -1,12 +1,33 @@
 require('dotenv').config();
+
+const connectDB = require('./db');
+connectDB();
+
 // server.js
 const express = require('express');
+const cors = require('cors');
 const { Server } = require('socket.io');
 const http = require('http');
 const { updateBusLocation, getBusLocation } = require('./redisClient');
 
 const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// BE-2 API routes
+app.use('/api/admin', require('./routes/auth'));
+app.use('/api/stops', require('./routes/stops'));
+app.use('/api/routes', require('./routes/routes'));
+app.use('/api/buses', require('./routes/buses'));
+app.use('/api/drivers', require('./routes/drivers'));
+app.use('/api/schedules', require('./routes/schedules'));
+app.use('/api/gtfs', require('./routes/gtfs'));
+app.use('/api/sms', require('./routes/sms'));
+
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: { origin: '*' }
 });

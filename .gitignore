@@ -11,6 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+node_modules/
+backend/node_modules/
 
 # IntelliJ related
 *.iml

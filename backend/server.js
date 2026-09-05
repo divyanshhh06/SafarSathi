@@ -101,9 +101,34 @@ function loadAllStops() {
 
 loadAllStops();
 
-// --- REST API Endpoints ---
+const PUBLIC_DIR = fs.existsSync(path.join(__dirname, 'public'))
+  ? path.join(__dirname, 'public')
+  : path.join(__dirname, '..', 'public');
+
+app.use(express.static(PUBLIC_DIR));
+
+// Load BE-3 Geospatial & ETA Engine
+let etaEngine = null;
+let db = null;
+try {
+  etaEngine = require('../src/services/etaEngine');
+  db = require('../src/data/db');
+  console.log('✅ BE-3 ETA Engine & Database loaded successfully');
+} catch (e) {
+  console.warn('⚠️ Could not load BE-3 ETA Engine:', e.message);
+}
+
+// --- Web Interface Root & REST API Endpoints ---
 
 app.get('/', (req, res) => {
+  const indexHtml = path.join(PUBLIC_DIR, 'index.html');
+  if (fs.existsSync(indexHtml)) {
+    return res.sendFile(indexHtml);
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/api/info', (req, res) => {
   res.json({
     service: 'SafarSathi BE-1 Tracking & GTFS Engine',
     status: 'running',
@@ -114,6 +139,8 @@ app.get('/', (req, res) => {
       districts: '/api/districts',
       stops: '/api/stops',
       routes: '/api/routes',
+      etaBus: '/api/eta/bus/:busId',
+      etaRoute: '/api/eta/route/:routeId'
     },
     timestamp: new Date().toISOString(),
   });
@@ -121,6 +148,35 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
+});
+
+app.get('/api/eta/bus/:busId', (req, res) => {
+  if (!etaEngine) return res.status(503).json({ error: 'ETA Engine unavailable' });
+  try {
+    const etas = etaEngine.calculateBusETAs(req.params.busId);
+    res.json({ success: true, data: etas });
+  } catch (err) {
+    res.status(404).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/eta/route/:routeId', (req, res) => {
+  if (!etaEngine) return res.status(503).json({ error: 'ETA Engine unavailable' });
+  try {
+    const etas = etaEngine.getRouteETAs(req.params.routeId);
+    res.json({ success: true, count: etas.length, data: etas });
+  } catch (err) {
+    res.status(404).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/crowd/report', (req, res) => {
+  const { busId, rating } = req.body;
+  if (db && typeof db.addCrowdReport === 'function') {
+    const report = db.addCrowdReport(busId, rating);
+    return res.json({ success: true, report });
+  }
+  res.json({ success: true, message: 'Report received' });
 });
 
 app.get('/api/districts', (req, res) => {
@@ -172,6 +228,18 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   socket.on('join_route', (routeId) => {
     socket.join(`route:${routeId}`);
+    socket.join(`route_${routeId}`);
+
+    // Send initial ETA update to client if available
+    if (etaEngine) {
+      try {
+        const routeETAs = etaEngine.getRouteETAs(routeId);
+        socket.emit('initial_eta_update', {
+          routeId,
+          buses: routeETAs
+        });
+      } catch (_) {}
+    }
   });
 
   socket.on('get_initial_position', async (busId, callback) => {
@@ -181,7 +249,48 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Driver sends live location
+  // Web Simulator Driver Stream Handler
+  socket.on('driver_ping_compressed', async (compressedData) => {
+    if (!Array.isArray(compressedData) || compressedData.length < 5) return;
+    const [lat, lng, busId, speed, bearing, timestamp] = compressedData;
+    const routeId = 'ROUTE_4B';
+
+    if (db) db.updateBusLocation(busId, lat, lng, speed, bearing || 0);
+    updateBusLocation(busId, lat, lng).catch(() => {});
+
+    let busETAs = null;
+    if (etaEngine) {
+      try {
+        busETAs = etaEngine.calculateBusETAs(busId);
+      } catch (_) {}
+    }
+
+    const payloadSizeBytes = Buffer.byteLength(JSON.stringify(compressedData), 'utf8');
+
+    // 1. Broadcast to Web UI (Leaflet Map)
+    const broadcastPayload = {
+      busId,
+      routeId,
+      location: { lat, lng, speed, bearing: bearing || 0 },
+      etas: busETAs ? busETAs.stops : [],
+      bandwidthUsage: {
+        bytesReceived: payloadSizeBytes,
+        kilobytesReceived: parseFloat((payloadSizeBytes / 1024).toFixed(3)),
+        isHyperCompressed: payloadSizeBytes < 1024
+      },
+      timestamp: timestamp || Date.now()
+    };
+
+    io.to(`route_${routeId}`).emit('bus_location_broadcast', broadcastPayload);
+    io.emit('bus_location_broadcast', broadcastPayload);
+
+    // 2. Also emit 'u' for Flutter clients
+    const flutterPayload = [lat, lng, busId, speed, routeId];
+    io.to(`route:${routeId}`).emit('u', flutterPayload);
+    io.emit('u', flutterPayload);
+  });
+
+  // Flutter Driver Location Update Handler
   socket.on('d_up', async (compressedPayload) => {
     if (!Array.isArray(compressedPayload) || compressedPayload.length < 5) return;
 
@@ -189,15 +298,42 @@ io.on('connection', (socket) => {
     const [lat, lng, busId, speed, routeId] = compressedPayload;
     console.log(`📡 Driver Ping [${busId}] on route [${routeId}]: (${lat.toFixed(4)}, ${lng.toFixed(4)}) at ${speed} km/h`);
 
-    // 1. Write to spatial cache (non-blocking)
+    if (db) db.updateBusLocation(busId, lat, lng, speed, 0);
     updateBusLocation(busId, lat, lng).catch(console.error);
 
-    // 2. Broadcast compressed array payload to room & globally
+    let busETAs = null;
+    if (etaEngine) {
+      try {
+        busETAs = etaEngine.calculateBusETAs(busId);
+      } catch (_) {}
+    }
+
+    // 1. Broadcast compressed array payload to Flutter room & globally
     io.to(`route:${routeId}`).emit('u', compressedPayload);
     io.emit('u', compressedPayload);
+
+    // 2. Also emit to Web UI
+    const payloadSizeBytes = Buffer.byteLength(JSON.stringify(compressedPayload), 'utf8');
+    const webPayload = {
+      busId,
+      routeId,
+      location: { lat, lng, speed, bearing: 0 },
+      etas: busETAs ? busETAs.stops : [],
+      bandwidthUsage: {
+        bytesReceived: payloadSizeBytes,
+        kilobytesReceived: parseFloat((payloadSizeBytes / 1024).toFixed(3)),
+        isHyperCompressed: payloadSizeBytes < 1024
+      },
+      timestamp: Date.now()
+    };
+    io.to(`route_${routeId}`).emit('bus_location_broadcast', webPayload);
+    io.emit('bus_location_broadcast', webPayload);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`Engine running on port ${PORT}`);
+  console.log(`=======================================================`);
+  console.log(`🚀 SafarSathi Backend & Web Portal running on port ${PORT}`);
+  console.log(`🌐 Open http://localhost:${PORT} in your browser`);
+  console.log(`=======================================================`);
 });

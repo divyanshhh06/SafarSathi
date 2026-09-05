@@ -40,6 +40,8 @@ async function runTestSuite() {
   // TEST 2: GPS Snapping & Drift Detection
   // -------------------------------------------------------------
   console.log('🎯 [TEST 2] Route Polyline Snapping & GPS Drift:');
+  const rawGps = { lng: 74.8752, lat: 31.6298 }; // Jittered GPS point ~25m off road
+  const route = db.getRouteById('ROUTE_ASR_01');
   const rawGps = { lng: 74.8768, lat: 31.6310 }; // Jittered GPS point near Bhandari Bridge
   const route = db.getRouteById('ROUTE_4B');
   const snapResult = etaEngine.getBusRoutePosition(rawGps, route.coordinates);
@@ -95,6 +97,8 @@ async function runTestSuite() {
   // TEST 5: Route ETAs (All buses on Route)
   // -------------------------------------------------------------
   console.log('🚌 [TEST 5] Multi-Bus Route ETAs:');
+  const allRouteEtas = etaEngine.getRouteETAs('ROUTE_ASR_01');
+  console.log(`   - Total Active Buses Found on ROUTE_ASR_01: ${allRouteEtas.length}`);
   const allRouteEtas = etaEngine.getRouteETAs('ROUTE_4B');
   console.log(`   - Total Active Buses Found on ROUTE_4B: ${allRouteEtas.length}`);
   allRouteEtas.forEach((b, idx) => {

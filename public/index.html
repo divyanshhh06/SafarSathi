@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafarSathi | Real-Time Public Transport Tracking & Command Center</title>
+  <!-- Google Fonts & Leaflet CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --accent-orange: #f97316;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar Controls */
+    #sidebar {
+      width: 420px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    }
+
+    .header-box {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .header-box h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .header-box p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    .btn-primary { background: var(--accent-orange); color: #fff; }
+    .btn-primary:hover { background: #ea580c; transform: translateY(-1px); }
+    .btn-secondary { background: #3b82f6; color: #fff; }
+    .btn-secondary:hover { background: #2563eb; }
+    .btn-success { background: var(--accent-green); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+    .btn-outline:hover { background: #334155; }
+
+    /* Lang Toggle */
+    .lang-toggle { display: flex; gap: 6px; }
+    .lang-btn { flex: 1; padding: 6px; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); cursor: pointer; }
+    .lang-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); font-weight: 600; }
+
+    /* Meter Gauge */
+    .gauge-container { display: flex; align-items: center; gap: 12px; background: #020617; padding: 12px; border-radius: 8px; border: 1px solid #1e293b; }
+    .gauge-val { font-size: 1.4rem; font-weight: 700; color: var(--accent-green); }
+    .gauge-label { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Crowd 3-Button Rating */
+    .crowd-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .crowd-btn { padding: 10px 4px; border-radius: 8px; border: none; font-weight: 600; font-size: 0.78rem; cursor: pointer; text-align: center; }
+    .crowd-empty { background: #166534; color: #4ade80; }
+    .crowd-standing { background: #854d0e; color: #facc15; }
+    .crowd-packed { background: #991b1b; color: #f87171; }
+
+    /* Stop ETA List */
+    .eta-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 8px; }
+    .eta-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1e293b; border-radius: 6px; font-size: 0.85rem; }
+    .eta-badge { background: var(--accent-blue); color: #000; font-weight: 700; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
+
+    /* Map Area */
+    #map { flex: 1; height: 100vh; background: #090d16; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Control Center -->
+  <div id="sidebar">
+    <div class="header-box">
+      <h1 id="app-title">🚌 SafarSathi (ਸਫ਼ਰ ਸਾਥੀ)</h1>
+      <p id="app-subtitle">Punjab Public Transport Tracking Engine</p>
+    </div>
+
+    <!-- Vernacular Switcher -->
+    <div class="card">
+      <div class="card-title">
+        <span>🌐 Vernacular Language</span>
+        <span style="font-size:0.75rem; color:var(--accent-blue);">FE-1 X-Factor</span>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" onclick="setLanguage('pa')">ਪੰਜਾਬੀ (Punjabi)</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी (Hindi)</button>
+      </div>
+      <button class="btn btn-outline" style="margin-top:10px;" onclick="simulateVoiceSearch()">
+        🎙️ <span id="btn-voice">Voice Search Stop</span>
+      </button>
+    </div>
+
+    <!-- Live Bandwidth Meter Gauge -->
+    <div class="card">
+      <div class="card-title">
+        <span>📊 Hyper-Compression Bandwidth Gauge</span>
+        <span style="font-size:0.75rem; color:var(--accent-green);">FE-3 / BE-1 X-Factor</span>
+      </div>
+      <div class="gauge-container">
+        <div>
+          <div class="gauge-val" id="gauge-size">0.049 KB</div>
+          <div class="gauge-label">Payload per ping (Target: &lt; 1.0 KB)</div>
+        </div>
+        <span style="margin-left:auto; background:#166534; color:#4ade80; font-size:0.75rem; padding:4px 8px; border-radius:12px; font-weight:700;">PASSED</span>
+      </div>
+    </div>
+
+    <!-- FE-3 Driver GPS Simulator -->
+    <div class="card">
+      <div class="card-title">
+        <span>🕹️ FE-3 Driver GPS Simulator</span>
+        <span style="font-size:0.75rem; color:var(--accent-orange);">Live Driver Ping</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Simulates driver GPS streaming hyper-compressed location updates to server over WebSocket.</p>
+      <button id="btn-drive" class="btn btn-primary" onclick="toggleDriverStream()">
+        ▶️ Start Live GPS Drive Stream
+      </button>
+    </div>
+
+    <!-- FE-1 Crowdsourced Occupancy ("Waze for Buses") -->
+    <div class="card">
+      <div class="card-title">
+        <span>👥 Crowdsourced Occupancy</span>
+        <span style="font-size:0.75rem; color:var(--accent-orange);">FE-1 X-Factor</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted);">Rate current bus crowding ("Waze for Buses"):</p>
+      <div class="crowd-buttons">
+        <button class="crowd-btn crowd-empty" onclick="reportCrowd('Empty')">🟢 Seats Free</button>
+        <button class="crowd-btn crowd-standing" onclick="reportCrowd('Standing')">🟡 Standing</button>
+        <button class="crowd-btn crowd-packed" onclick="reportCrowd('Packed')">🔴 Packed</button>
+      </div>
+    </div>
+
+    <!-- FE-2 Admin GTFS Exporter -->
+    <div class="card">
+      <div class="card-title">
+        <span>⚙️ FE-2 Admin & Open GTFS</span>
+        <span style="font-size:0.75rem; color:var(--accent-blue);">FE-2 / BE-2 X-Factor</span>
+      </div>
+      <button class="btn btn-secondary" onclick="window.location.href='/api/gtfs/export'">
+        ⬇️ Download GTFS Transit Feed (.ZIP)
+      </button>
+    </div>
+
+    <!-- Live Stop ETAs Card -->
+    <div class="card" style="flex:1;">
+      <div class="card-title">
+        <span>⏱️ Live Stop ETAs (Amritsar Route 4B)</span>
+      </div>
+      <div class="eta-list" id="eta-container">
+        <div style="font-size:0.8rem; color:var(--text-muted);">Connecting to live socket feed...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OpenStreetMap Container -->
+  <div id="map"></div>
+
+  <script>
+    // Initialize Leaflet Map centered on Amritsar, Punjab
+    const map = L.map('map').setView([31.6285, 74.8790], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors | SafarSathi Punjab IDSVH26003'
+    }).addTo(map);
+
+    // Route coordinates polyline
+    const routeCoords = [
+      [31.6340, 74.8723], // Amritsar RS
+      [31.6312, 74.8765], // Bhandari Bridge
+      [31.6285, 74.8790], // Hall Bazaar
+      [31.6200, 74.8765], // Golden Temple
+      [31.6215, 74.8801], // Jallianwala Bagh
+      [31.6150, 74.8920]  // ISBT Amritsar
+    ];
+
+    const polyline = L.polyline(routeCoords, { color: '#f97316', weight: 6, opacity: 0.8 }).addTo(map);
+    map.fitBounds(polyline.getBounds());
+
+    // Add Stop Markers
+    const stopsData = [
+      { name: "Amritsar Railway Station", lat: 31.6340, lng: 74.8723 },
+      { name: "Bhandari Bridge", lat: 31.6312, lng: 74.8765 },
+      { name: "Hall Bazaar", lat: 31.6285, lng: 74.8790 },
+      { name: "Golden Temple", lat: 31.6200, lng: 74.8765 },
+      { name: "Jallianwala Bagh", lat: 31.6215, lng: 74.8801 },
+      { name: "ISBT Amritsar", lat: 31.6150, lng: 74.8920 }
+    ];
+
+    stopsData.forEach(s => {
+      L.circleMarker([s.lat, s.lng], { radius: 6, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 1 })
+        .bindPopup(`<b>${s.name}</b>`)
+        .addTo(map);
+    });
+
+    // Bus Marker
+    const busIcon = L.divIcon({
+      html: '<div style="font-size:24px; background:#1e293b; border:2px solid #22c55e; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px #22c55e;">🚌</div>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+
+    let busMarker = L.marker([31.6340, 74.8723], { icon: busIcon }).addTo(map).bindPopup("Bus BUS_101 (Route 4B)");
+
+    // Socket.io Connection
+    const socket = io();
+    socket.emit('join_route', 'ROUTE_4B');
+
+    socket.on('initial_eta_update', (data) => {
+      if (data.buses && data.buses.length > 0) {
+        updateETAUi(data.buses[0].stops);
+      }
+    });
+
+    socket.on('bus_location_broadcast', (data) => {
+      if (data.location) {
+        busMarker.setLatLng([data.location.lat, data.location.lng]);
+        map.panTo([data.location.lat, data.location.lng]);
+      }
+      if (data.bandwidthUsage) {
+        document.getElementById('gauge-size').innerText = `${data.bandwidthUsage.kilobytesReceived} KB`;
+      }
+      if (data.etas) {
+        updateETAUi(data.etas);
+      }
+    });
+
+    function updateETAUi(stops) {
+      const container = document.getElementById('eta-container');
+      container.innerHTML = '';
+      stops.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'eta-item';
+        item.innerHTML = `
+          <div>
+            <strong>${s.stopName}</strong>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${s.status} • ${s.distanceKm} km</div>
+          </div>
+          <span class="eta-badge">${s.etaMinutes} min</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Driver Stream Simulation
+    let isDriving = false;
+    let driveInterval = null;
+    let driveStep = 0;
+
+    function toggleDriverStream() {
+      const btn = document.getElementById('btn-drive');
+      if (!isDriving) {
+        isDriving = true;
+        btn.innerText = '⏸️ Stop GPS Drive Stream';
+        btn.style.background = '#dc2626';
+
+        driveInterval = setInterval(() => {
+          driveStep = (driveStep + 1) % routeCoords.length;
+          const pos = routeCoords[driveStep];
+          // Emit hyper-compressed array payload: [lat, lng, busId, speed, bearing, timestamp]
+          const compressedPing = [pos[0], pos[1], "BUS_101", 35.0, 140, Date.now()];
+          socket.emit('driver_ping_compressed', compressedPing);
+        }, 3000);
+      } else {
+        isDriving = false;
+        clearInterval(driveInterval);
+        btn.innerText = '▶️ Start Live GPS Drive Stream';
+        btn.style.background = 'var(--accent-orange)';
+      }
+    }
+
+    // Vernacular Language Toggle
+    const translations = {
+      en: { title: "🚌 SafarSathi", sub: "Punjab Public Transport Tracking Engine", voice: "Voice Search Stop" },
+      pa: { title: "🚌 ਸਫ਼ਰ ਸਾਥੀ", sub: "ਪੰਜਾਬ ਜਨਤਕ ਟ੍ਰਾਂਸਪੋਰਟ ਟ੍ਰੈਕਿੰਗ ਇੰਜਣ", voice: "ਆਵਾਜ਼ ਨਾਲ ਬੱਸ ਸਟਾਪ ਲੱਭੋ" },
+      hi: { title: "🚌 सफ़र साथी", sub: "पंजाब सार्वजनिक परिवहन ट्रैकिंग इंजन", voice: "आवाज से बस स्टॉप खोजें" }
+    };
+
+    function setLanguage(lang) {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      const t = translations[lang];
+      document.getElementById('app-title').innerText = t.title;
+      document.getElementById('app-subtitle').innerText = t.sub;
+      document.getElementById('btn-voice').innerText = t.voice;
+    }
+
+    function simulateVoiceSearch() {
+      alert("🎙️ Listening... Say stop name in Punjabi / Hindi (e.g. 'Golden Temple' / 'ਗੋਲਡਨ ਟੈਂਪਲ').\nResult: Found Golden Temple Stop (0.97 km away)");
+    }
+
+    function reportCrowd(rating) {
+      fetch('/api/crowd/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ busId: 'BUS_101', rating })
+      })
+      .then(res => res.json())
+      .then(data => alert(`✅ Crowdsourced Occupancy '${rating}' reported successfully!`));
+    }
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { Server } = require('socket.io');
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { updateBusLocation, getBusLocation } = require('./redisClient');
@@ -101,6 +102,42 @@ function loadAllStops() {
 
 loadAllStops();
 
+// ─── OSRM Road Geometry Cache ──────────────────────────────────────
+const roadGeometryCache = new Map(); // routeId → [[lat,lng],...]
+
+async function fetchOSRMRoadGeometry(waypoints) {
+  const coordStr = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(';');
+  const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
+  console.log(`🗺️  OSRM fetching ${waypoints.length} waypoints…`);
+  return new Promise((resolve) => {
+    const req = https.get(url, { timeout: 15000 }, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          if (data.code === 'Ok' && data.routes && data.routes[0]) {
+            const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+            console.log(`✅ OSRM returned ${coords.length} road points`);
+            return resolve({ success: true, coords, source: 'OSRM' });
+          }
+        } catch (e) { console.warn('OSRM parse error:', e.message); }
+        console.warn('OSRM: no valid route, using fallback');
+        resolve({ success: false, coords: waypoints, source: 'FALLBACK' });
+      });
+    });
+    req.on('error', () => resolve({ success: false, coords: waypoints, source: 'FALLBACK' }));
+    req.on('timeout', () => { req.destroy(); resolve({ success: false, coords: waypoints, source: 'FALLBACK' }); });
+  });
+}
+
+const PRESET_ROUTE_STOPS = {
+  ROUTE_4B: [[31.6340,74.8723],[31.6312,74.8765],[31.6285,74.8790],[31.6200,74.8765],[31.6215,74.8801],[31.6150,74.8920]],
+  ROUTE_101: [[30.9100,75.8510],[30.9030,75.8080],[30.8920,75.8320]],
+  ROUTE_202: [[31.3200,75.5800],[31.3260,75.5760],[31.3110,75.6120]]
+};
+
+// --- REST API Endpoints ---
 const PUBLIC_DIR = fs.existsSync(path.join(__dirname, 'public'))
   ? path.join(__dirname, 'public')
   : path.join(__dirname, '..', 'public');
@@ -119,6 +156,45 @@ try {
 }
 
 // --- Web Interface Root & REST API Endpoints ---
+
+// GET /api/road-geometry/:routeId → returns OSRM-snapped road coords + stop indices
+app.get('/api/road-geometry/:routeId', async (req, res) => {
+  const routeId = req.params.routeId;
+
+  if (roadGeometryCache.has(routeId)) {
+    return res.json(roadGeometryCache.get(routeId));
+  }
+
+  const stops = PRESET_ROUTE_STOPS[routeId];
+  if (!stops) {
+    return res.status(404).json({ error: 'Route not found' });
+  }
+
+  try {
+    const result = await fetchOSRMRoadGeometry(stops);
+    // Find which coord indices correspond to each stop (snap to nearest point)
+    const stopIndices = stops.map(([slat, slng]) => {
+      let best = 0, bestDist = Infinity;
+      result.coords.forEach(([clat, clng], i) => {
+        const d = Math.hypot(clat - slat, clng - slng);
+        if (d < bestDist) { bestDist = d; best = i; }
+      });
+      return best;
+    });
+
+    const payload = {
+      routeId,
+      source: result.source,
+      coords: result.coords,         // full road geometry [[lat,lng],...]
+      stopIndices,                   // index into coords for each stop
+      totalPoints: result.coords.length
+    };
+    roadGeometryCache.set(routeId, payload);
+    res.json(payload);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.get('/', (req, res) => {
   const indexHtml = path.join(PUBLIC_DIR, 'index.html');
@@ -249,11 +325,20 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Driver sends live location
   // Web Simulator Driver Stream Handler
   socket.on('driver_ping_compressed', async (compressedData) => {
     if (!Array.isArray(compressedData) || compressedData.length < 5) return;
     const [lat, lng, busId, speed, bearing, timestamp] = compressedData;
-    const routeId = 'ROUTE_4B';
+
+    // Derive routeId from db if available, else from busId convention
+    let routeId = 'ROUTE_4B';
+    if (db) {
+      const bus = db.getBusById(busId);
+      if (bus && bus.routeId) routeId = bus.routeId;
+    }
+    // Also accept routeId as 7th element in payload (future use)
+    if (compressedData[6]) routeId = compressedData[6];
 
     if (db) db.updateBusLocation(busId, lat, lng, speed, bearing || 0);
     updateBusLocation(busId, lat, lng).catch(() => {});
@@ -267,7 +352,6 @@ io.on('connection', (socket) => {
 
     const payloadSizeBytes = Buffer.byteLength(JSON.stringify(compressedData), 'utf8');
 
-    // 1. Broadcast to Web UI (Leaflet Map)
     const broadcastPayload = {
       busId,
       routeId,
@@ -284,7 +368,6 @@ io.on('connection', (socket) => {
     io.to(`route_${routeId}`).emit('bus_location_broadcast', broadcastPayload);
     io.emit('bus_location_broadcast', broadcastPayload);
 
-    // 2. Also emit 'u' for Flutter clients
     const flutterPayload = [lat, lng, busId, speed, routeId];
     io.to(`route:${routeId}`).emit('u', flutterPayload);
     io.emit('u', flutterPayload);
@@ -298,9 +381,11 @@ io.on('connection', (socket) => {
     const [lat, lng, busId, speed, routeId] = compressedPayload;
     console.log(`📡 Driver Ping [${busId}] on route [${routeId}]: (${lat.toFixed(4)}, ${lng.toFixed(4)}) at ${speed} km/h`);
 
+    // 1. Write to spatial cache (non-blocking)
     if (db) db.updateBusLocation(busId, lat, lng, speed, 0);
     updateBusLocation(busId, lat, lng).catch(console.error);
 
+    // 2. Broadcast compressed array payload to room & globally
     let busETAs = null;
     if (etaEngine) {
       try {
@@ -332,6 +417,7 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
+  console.log(`Engine running on port ${PORT}`);
   console.log(`=======================================================`);
   console.log(`🚀 SafarSathi Backend & Web Portal running on port ${PORT}`);
   console.log(`🌐 Open http://localhost:${PORT} in your browser`);

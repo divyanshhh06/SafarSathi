@@ -83,6 +83,22 @@
     .lang-btn { flex: 1; padding: 6px; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); cursor: pointer; }
     .lang-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); font-weight: 600; }
 
+    /* Route Selector */
+    .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 0.88rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .form-select:focus { border-color: var(--accent-blue); }
+
     /* Meter Gauge */
     .gauge-container { display: flex; align-items: center; gap: 12px; background: #020617; padding: 12px; border-radius: 8px; border: 1px solid #1e293b; }
     .gauge-val { font-size: 1.4rem; font-weight: 700; color: var(--accent-green); }
@@ -127,6 +143,20 @@
       <button class="btn btn-outline" style="margin-top:10px;" onclick="simulateVoiceSearch()">
         🎙️ <span id="btn-voice">Voice Search Stop</span>
       </button>
+    </div>
+
+    <!-- Active Route Selector -->
+    <div class="card">
+      <div class="card-title">
+        <span>📍 Select Transit Route</span>
+        <span style="font-size:0.75rem; color:var(--accent-orange);" id="route-badge">Active</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">Switch bus corridors across Punjab cities:</p>
+      <select id="route-select" class="form-select" onchange="onRouteChanged(this.value)">
+        <option value="ROUTE_4B" selected>Amritsar: Railway Station ➔ Golden Temple (Route 4B)</option>
+        <option value="ROUTE_101">Ludhiana: Clock Tower ➔ Model Town (Route 101)</option>
+        <option value="ROUTE_202">Jalandhar: Bus Stand ➔ Rama Mandi (Route 202)</option>
+      </select>
     </div>
 
     <!-- Live Bandwidth Meter Gauge -->
@@ -184,7 +214,7 @@
     <!-- Live Stop ETAs Card -->
     <div class="card" style="flex:1;">
       <div class="card-title">
-        <span>⏱️ Live Stop ETAs (Amritsar Route 4B)</span>
+        <span id="eta-title">⏱️ Live Stop ETAs (Route 4B)</span>
       </div>
       <div class="eta-list" id="eta-container">
         <div style="font-size:0.8rem; color:var(--text-muted);">Connecting to live socket feed...</div>
@@ -196,7 +226,65 @@
   <div id="map"></div>
 
   <script>
-    // Initialize Leaflet Map centered on Amritsar, Punjab
+    const ROUTES_DATA = {
+      ROUTE_4B: {
+        id: "ROUTE_4B",
+        name: "Amritsar: Railway Station ➔ Golden Temple",
+        busId: "BUS_101",
+        coords: [
+          [31.6340, 74.8723], // Amritsar RS
+          [31.6312, 74.8765], // Bhandari Bridge
+          [31.6285, 74.8790], // Hall Bazaar
+          [31.6200, 74.8765], // Golden Temple
+          [31.6215, 74.8801], // Jallianwala Bagh
+          [31.6150, 74.8920]  // ISBT Amritsar
+        ],
+        stops: [
+          { id: "STOP_01", name: "Amritsar Railway Station", lat: 31.6340, lng: 74.8723 },
+          { id: "STOP_02", name: "Bhandari Bridge", lat: 31.6312, lng: 74.8765 },
+          { id: "STOP_03", name: "Hall Bazaar", lat: 31.6285, lng: 74.8790 },
+          { id: "STOP_04", name: "Golden Temple (Harmandir Sahib)", lat: 31.6200, lng: 74.8765 },
+          { id: "STOP_05", name: "Jallianwala Bagh", lat: 31.6215, lng: 74.8801 },
+          { id: "STOP_06", name: "ISBT Amritsar", lat: 31.6150, lng: 74.8920 }
+        ]
+      },
+      ROUTE_101: {
+        id: "ROUTE_101",
+        name: "Ludhiana: Clock Tower ➔ Model Town",
+        busId: "BUS_201",
+        coords: [
+          [30.9100, 75.8510], // Clock Tower
+          [30.9030, 75.8080], // PAU Gate 1
+          [30.8920, 75.8320]  // Model Town
+        ],
+        stops: [
+          { id: "STOP_10", name: "Ludhiana Clock Tower", lat: 30.9100, lng: 75.8510 },
+          { id: "STOP_11", name: "PAU Gate 1", lat: 30.9030, lng: 75.8080 },
+          { id: "STOP_12", name: "Model Town", lat: 30.8920, lng: 75.8320 }
+        ]
+      },
+      ROUTE_202: {
+        id: "ROUTE_202",
+        name: "Jalandhar: Bus Stand ➔ Rama Mandi",
+        busId: "BUS_102",
+        coords: [
+          [31.3200, 75.5800], // Bus Stand
+          [31.3260, 75.5760], // BMC Chowk
+          [31.3110, 75.6120]  // Rama Mandi
+        ],
+        stops: [
+          { id: "STOP_20", name: "Jalandhar Bus Stand", lat: 31.3200, lng: 75.5800 },
+          { id: "STOP_21", name: "BMC Chowk", lat: 31.3260, lng: 75.5760 },
+          { id: "STOP_22", name: "Rama Mandi", lat: 31.3110, lng: 75.6120 }
+        ]
+      }
+    };
+
+    let currentRoute = ROUTES_DATA.ROUTE_4B;
+    let currentPolyline = null;
+    let stopMarkers = [];
+
+    // Initialize Leaflet Map
     const map = L.map('map').setView([31.6285, 74.8790], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -204,47 +292,117 @@
       attribution: '&copy; OpenStreetMap contributors | SafarSathi Punjab IDSVH26003'
     }).addTo(map);
 
-    // Route coordinates polyline
-    const routeCoords = [
-      [31.6340, 74.8723], // Amritsar RS
-      [31.6312, 74.8765], // Bhandari Bridge
-      [31.6285, 74.8790], // Hall Bazaar
-      [31.6200, 74.8765], // Golden Temple
-      [31.6215, 74.8801], // Jallianwala Bagh
-      [31.6150, 74.8920]  // ISBT Amritsar
-    ];
-
-    const polyline = L.polyline(routeCoords, { color: '#f97316', weight: 6, opacity: 0.8 }).addTo(map);
-    map.fitBounds(polyline.getBounds());
-
-    // Add Stop Markers
-    const stopsData = [
-      { name: "Amritsar Railway Station", lat: 31.6340, lng: 74.8723 },
-      { name: "Bhandari Bridge", lat: 31.6312, lng: 74.8765 },
-      { name: "Hall Bazaar", lat: 31.6285, lng: 74.8790 },
-      { name: "Golden Temple", lat: 31.6200, lng: 74.8765 },
-      { name: "Jallianwala Bagh", lat: 31.6215, lng: 74.8801 },
-      { name: "ISBT Amritsar", lat: 31.6150, lng: 74.8920 }
-    ];
-
-    stopsData.forEach(s => {
-      L.circleMarker([s.lat, s.lng], { radius: 6, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 1 })
-        .bindPopup(`<b>${s.name}</b>`)
-        .addTo(map);
-    });
-
     // Bus Marker
     const busIcon = L.divIcon({
       html: '<div style="font-size:24px; background:#1e293b; border:2px solid #22c55e; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px #22c55e;">🚌</div>',
       iconSize: [36, 36],
       iconAnchor: [18, 18]
     });
-
-    let busMarker = L.marker([31.6340, 74.8723], { icon: busIcon }).addTo(map).bindPopup("Bus BUS_101 (Route 4B)");
+    let busMarker = L.marker([31.6340, 74.8723], { icon: busIcon }).addTo(map);
 
     // Socket.io Connection
     const socket = io();
-    socket.emit('join_route', 'ROUTE_4B');
+
+    function renderRoute(route) {
+      if (currentPolyline) map.removeLayer(currentPolyline);
+      stopMarkers.forEach(m => map.removeLayer(m));
+      stopMarkers = [];
+
+      currentPolyline = L.polyline(route.coords, { color: '#f97316', weight: 6, opacity: 0.85 }).addTo(map);
+      map.fitBounds(currentPolyline.getBounds(), { padding: [40, 40] });
+
+      route.stops.forEach(s => {
+        const marker = L.circleMarker([s.lat, s.lng], {
+          radius: 6,
+          fillColor: '#38bdf8',
+          color: '#fff',
+          weight: 2,
+          fillOpacity: 1
+        }).bindPopup(`<b>${s.name}</b>`).addTo(map);
+        stopMarkers.push(marker);
+      });
+
+      busMarker.setLatLng(route.coords[0]);
+      busMarker.bindPopup(`Bus ${route.busId} (${route.name})`);
+    }
+
+    function onRouteChanged(routeId) {
+      if (isDriving) toggleDriverStream(); // Stop simulation if running
+
+      currentRoute = ROUTES_DATA[routeId] || ROUTES_DATA.ROUTE_4B;
+      document.getElementById('eta-title').innerText = `⏱️ Live Stop ETAs (${currentRoute.name})`;
+
+      renderRoute(currentRoute);
+
+      socket.emit('join_route', currentRoute.id);
+
+      fetch(`/api/eta/route/${currentRoute.id}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.data && data.data.length > 0) {
+            updateETAUi(data.data[0].stops);
+          } else {
+            renderFallbackStops(currentRoute.stops);
+          }
+        })
+        .catch(() => renderFallbackStops(currentRoute.stops));
+    }
+
+    function renderFallbackStops(stops) {
+      const container = document.getElementById('eta-container');
+      container.innerHTML = '';
+      stops.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = 'eta-item';
+        item.innerHTML = `
+          <div>
+            <strong>${s.name}</strong>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${idx === 0 ? 'STARTING' : 'UPCOMING'}</div>
+          </div>
+          <span class="eta-badge">${idx * 3 + 1} min</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Initial render
+    renderRoute(currentRoute);
+    socket.emit('join_route', currentRoute.id);
+
+    // Populate GTFS district routes dynamically into select
+    fetch('/api/routes')
+      .then(r => r.json())
+      .then(routes => {
+        const select = document.getElementById('route-select');
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = 'Punjab District GTFS Lines';
+        routes.forEach(r => {
+          if (r.stops && r.stops.length >= 2) {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.innerText = r.name;
+            optGroup.appendChild(opt);
+
+            // Register in ROUTES_DATA
+            ROUTES_DATA[r.id] = {
+              id: r.id,
+              name: r.name,
+              busId: `BUS_${r.id.replace('route-', '').toUpperCase()}`,
+              coords: r.stops.map(s => [s.latitude, s.longitude]),
+              stops: r.stops.map((s, idx) => ({
+                id: s.id || `stop_${idx}`,
+                name: s.name,
+                lat: s.latitude,
+                lng: s.longitude
+              }))
+            };
+          }
+        });
+        if (optGroup.children.length > 0) {
+          select.appendChild(optGroup);
+        }
+      })
+      .catch(() => {});
 
     socket.on('initial_eta_update', (data) => {
       if (data.buses && data.buses.length > 0) {
@@ -260,7 +418,7 @@
       if (data.bandwidthUsage) {
         document.getElementById('gauge-size').innerText = `${data.bandwidthUsage.kilobytesReceived} KB`;
       }
-      if (data.etas) {
+      if (data.etas && data.etas.length > 0) {
         updateETAUi(data.etas);
       }
     });
@@ -295,10 +453,9 @@
         btn.style.background = '#dc2626';
 
         driveInterval = setInterval(() => {
-          driveStep = (driveStep + 1) % routeCoords.length;
-          const pos = routeCoords[driveStep];
-          // Emit hyper-compressed array payload: [lat, lng, busId, speed, bearing, timestamp]
-          const compressedPing = [pos[0], pos[1], "BUS_101", 35.0, 140, Date.now()];
+          driveStep = (driveStep + 1) % currentRoute.coords.length;
+          const pos = currentRoute.coords[driveStep];
+          const compressedPing = [pos[0], pos[1], currentRoute.busId, 35.0, 140, Date.now()];
           socket.emit('driver_ping_compressed', compressedPing);
         }, 3000);
       } else {

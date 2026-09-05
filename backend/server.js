@@ -330,6 +330,7 @@ io.on('connection', (socket) => {
   socket.on('driver_ping_compressed', async (compressedData) => {
     if (!Array.isArray(compressedData) || compressedData.length < 5) return;
     const [lat, lng, busId, speed, bearing, timestamp] = compressedData;
+    const routeId = 'ROUTE_4B';
 
     // Derive routeId from db if available, else from busId convention
     let routeId = 'ROUTE_4B';
@@ -352,6 +353,7 @@ io.on('connection', (socket) => {
 
     const payloadSizeBytes = Buffer.byteLength(JSON.stringify(compressedData), 'utf8');
 
+    // 1. Broadcast to Web UI (Leaflet Map)
     const broadcastPayload = {
       busId,
       routeId,
@@ -368,6 +370,7 @@ io.on('connection', (socket) => {
     io.to(`route_${routeId}`).emit('bus_location_broadcast', broadcastPayload);
     io.emit('bus_location_broadcast', broadcastPayload);
 
+    // 2. Also emit 'u' for Flutter clients
     const flutterPayload = [lat, lng, busId, speed, routeId];
     io.to(`route:${routeId}`).emit('u', flutterPayload);
     io.emit('u', flutterPayload);

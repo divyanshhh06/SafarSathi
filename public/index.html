@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafarSathi | Real-Time Public Transport Tracking & Command Center</title>
-  <!-- Google Fonts & Leaflet CSS -->
+  <title>SafarSathi | Real-Time Public Transport Tracking &amp; Command Center</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -25,7 +24,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-    /* Sidebar Controls */
     #sidebar {
       width: 420px;
       background: var(--bg-card);
@@ -54,78 +52,72 @@
       border-radius: 12px;
       padding: 16px;
     }
-    .card-title { font-size: 0.95rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .card-title {
+      font-size: 0.95rem; font-weight: 600; color: var(--accent-blue);
+      margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+    }
 
     .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 0.9rem;
+      width: 100%; padding: 12px; border: none; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: 0.9rem;
     }
     .btn-primary { background: var(--accent-orange); color: #fff; }
     .btn-primary:hover { background: #ea580c; transform: translateY(-1px); }
     .btn-secondary { background: #3b82f6; color: #fff; }
     .btn-secondary:hover { background: #2563eb; }
-    .btn-success { background: var(--accent-green); color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
     .btn-outline:hover { background: #334155; }
 
-    /* Lang Toggle */
     .lang-toggle { display: flex; gap: 6px; }
     .lang-btn { flex: 1; padding: 6px; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); cursor: pointer; }
     .lang-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); font-weight: 600; }
 
-    /* Route Selector */
     .form-select {
-      width: 100%;
-      padding: 10px 12px;
-      background: #020617;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--text-main);
-      font-size: 0.88rem;
-      font-weight: 500;
-      outline: none;
-      cursor: pointer;
-      margin-top: 4px;
+      width: 100%; padding: 10px 12px;
+      background: #020617; border: 1px solid var(--border-color);
+      border-radius: 8px; color: var(--text-main);
+      font-size: 0.88rem; font-weight: 500; outline: none; cursor: pointer; margin-top: 4px;
     }
     .form-select:focus { border-color: var(--accent-blue); }
 
-    /* Meter Gauge */
     .gauge-container { display: flex; align-items: center; gap: 12px; background: #020617; padding: 12px; border-radius: 8px; border: 1px solid #1e293b; }
     .gauge-val { font-size: 1.4rem; font-weight: 700; color: var(--accent-green); }
     .gauge-label { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* Crowd 3-Button Rating */
     .crowd-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
     .crowd-btn { padding: 10px 4px; border-radius: 8px; border: none; font-weight: 600; font-size: 0.78rem; cursor: pointer; text-align: center; }
     .crowd-empty { background: #166534; color: #4ade80; }
     .crowd-standing { background: #854d0e; color: #facc15; }
     .crowd-packed { background: #991b1b; color: #f87171; }
 
-    /* Stop ETA List */
-    .eta-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 8px; }
+    .eta-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; margin-top: 8px; }
     .eta-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1e293b; border-radius: 6px; font-size: 0.85rem; }
-    .eta-badge { background: var(--accent-blue); color: #000; font-weight: 700; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
+    .eta-badge { background: var(--accent-blue); color: #000; font-weight: 700; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; min-width: 58px; text-align: center; }
+    .eta-badge.passed { background: #64748b; color: #fff; }
+    .eta-badge.arrived { background: var(--accent-green); color: #000; }
 
-    /* Map Area */
+    /* Status dot for driving */
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #64748b; display: inline-block; margin-right: 6px;
+    }
+    .status-dot.live { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Legend */
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 0.78rem; color: var(--text-muted); }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
     #map { flex: 1; height: 100vh; background: #090d16; }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Control Center -->
   <div id="sidebar">
     <div class="header-box">
-      <h1 id="app-title">🚌 SafarSathi (ਸਫ਼ਰ ਸਾਥੀ)</h1>
+      <h1 id="app-title">🚌 SafarSathi (ਸਫ਼ਰ ਸਾਥੀ)</h1>
       <p id="app-subtitle">Punjab Public Transport Tracking Engine</p>
     </div>
 
@@ -136,9 +128,9 @@
         <span style="font-size:0.75rem; color:var(--accent-blue);">FE-1 X-Factor</span>
       </div>
       <div class="lang-toggle">
-        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
-        <button class="lang-btn" onclick="setLanguage('pa')">ਪੰਜਾਬੀ (Punjabi)</button>
-        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी (Hindi)</button>
+        <button class="lang-btn active" onclick="setLanguage('en', this)">English</button>
+        <button class="lang-btn" onclick="setLanguage('pa', this)">ਪੰਜਾਬੀ</button>
+        <button class="lang-btn" onclick="setLanguage('hi', this)">हिंदी</button>
       </div>
       <button class="btn btn-outline" style="margin-top:10px;" onclick="simulateVoiceSearch()">
         🎙️ <span id="btn-voice">Voice Search Stop</span>
@@ -157,36 +149,43 @@
         <option value="ROUTE_101">Ludhiana: Clock Tower ➔ Model Town (Route 101)</option>
         <option value="ROUTE_202">Jalandhar: Bus Stand ➔ Rama Mandi (Route 202)</option>
       </select>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f97316;border-radius:2px;width:18px;height:4px;"></div> Route Path</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> Bus Stop</div>
+        <div class="legend-item"><span style="font-size:14px;">🚌</span> Live Bus</div>
+      </div>
     </div>
 
-    <!-- Live Bandwidth Meter Gauge -->
+    <!-- Bandwidth Gauge -->
     <div class="card">
       <div class="card-title">
         <span>📊 Hyper-Compression Bandwidth Gauge</span>
-        <span style="font-size:0.75rem; color:var(--accent-green);">FE-3 / BE-1 X-Factor</span>
+        <span style="font-size:0.75rem; color:var(--accent-green);">BE-1 X-Factor</span>
       </div>
       <div class="gauge-container">
         <div>
-          <div class="gauge-val" id="gauge-size">0.049 KB</div>
+          <div class="gauge-val" id="gauge-size">— KB</div>
           <div class="gauge-label">Payload per ping (Target: &lt; 1.0 KB)</div>
         </div>
-        <span style="margin-left:auto; background:#166534; color:#4ade80; font-size:0.75rem; padding:4px 8px; border-radius:12px; font-weight:700;">PASSED</span>
+        <span id="gauge-badge" style="margin-left:auto; background:#166534; color:#4ade80; font-size:0.75rem; padding:4px 8px; border-radius:12px; font-weight:700;">WAITING</span>
       </div>
     </div>
 
-    <!-- FE-3 Driver GPS Simulator -->
+    <!-- Driver GPS Simulator -->
     <div class="card">
       <div class="card-title">
         <span>🕹️ FE-3 Driver GPS Simulator</span>
-        <span style="font-size:0.75rem; color:var(--accent-orange);">Live Driver Ping</span>
+        <span style="display:flex;align-items:center;"><span class="status-dot" id="drive-dot"></span><span id="drive-status" style="font-size:0.75rem; color:var(--text-muted);">Idle</span></span>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Simulates driver GPS streaming hyper-compressed location updates to server over WebSocket.</p>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+        Simulates live GPS streaming with smooth bus movement and real-time ETA updates.
+      </p>
       <button id="btn-drive" class="btn btn-primary" onclick="toggleDriverStream()">
         ▶️ Start Live GPS Drive Stream
       </button>
     </div>
 
-    <!-- FE-1 Crowdsourced Occupancy ("Waze for Buses") -->
+    <!-- Crowdsourced Occupancy -->
     <div class="card">
       <div class="card-title">
         <span>👥 Crowdsourced Occupancy</span>
@@ -200,10 +199,10 @@
       </div>
     </div>
 
-    <!-- FE-2 Admin GTFS Exporter -->
+    <!-- Admin GTFS -->
     <div class="card">
       <div class="card-title">
-        <span>⚙️ FE-2 Admin & Open GTFS</span>
+        <span>⚙️ FE-2 Admin &amp; Open GTFS</span>
         <span style="font-size:0.75rem; color:var(--accent-blue);">FE-2 / BE-2 X-Factor</span>
       </div>
       <button class="btn btn-secondary" onclick="window.location.href='/api/gtfs/export'">
@@ -215,127 +214,178 @@
     <div class="card" style="flex:1;">
       <div class="card-title">
         <span id="eta-title">⏱️ Live Stop ETAs (Route 4B)</span>
+        <span id="eta-congestion" style="font-size:0.72rem;"></span>
       </div>
       <div class="eta-list" id="eta-container">
-        <div style="font-size:0.8rem; color:var(--text-muted);">Connecting to live socket feed...</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">Select a route and start GPS stream to see live ETAs…</div>
       </div>
     </div>
   </div>
 
-  <!-- OpenStreetMap Container -->
+  <!-- Map -->
   <div id="map"></div>
 
   <script>
+    // ─────────────────────────────────────────────
+    //  ROUTES DATA  (stop-level waypoints)
+    // ─────────────────────────────────────────────
     const ROUTES_DATA = {
       ROUTE_4B: {
-        id: "ROUTE_4B",
-        name: "Amritsar: Railway Station ➔ Golden Temple",
-        busId: "BUS_101",
+        id: 'ROUTE_4B',
+        name: 'Amritsar: Railway Station ➔ Golden Temple',
+        busId: 'BUS_101',
+        center: [31.6270, 74.8780],
+        zoom: 14,
         coords: [
-          [31.6340, 74.8723], // Amritsar RS
-          [31.6312, 74.8765], // Bhandari Bridge
-          [31.6285, 74.8790], // Hall Bazaar
-          [31.6200, 74.8765], // Golden Temple
-          [31.6215, 74.8801], // Jallianwala Bagh
-          [31.6150, 74.8920]  // ISBT Amritsar
+          [31.6340, 74.8723],
+          [31.6332, 74.8730],
+          [31.6325, 74.8742],
+          [31.6318, 74.8752],
+          [31.6312, 74.8765],
+          [31.6305, 74.8772],
+          [31.6298, 74.8779],
+          [31.6290, 74.8785],
+          [31.6285, 74.8790],
+          [31.6270, 74.8782],
+          [31.6255, 74.8775],
+          [31.6240, 74.8772],
+          [31.6225, 74.8768],
+          [31.6210, 74.8766],
+          [31.6200, 74.8765],
+          [31.6207, 74.8778],
+          [31.6212, 74.8789],
+          [31.6215, 74.8801],
+          [31.6202, 74.8830],
+          [31.6188, 74.8860],
+          [31.6175, 74.8885],
+          [31.6163, 74.8903],
+          [31.6150, 74.8920]
         ],
         stops: [
-          { id: "STOP_01", name: "Amritsar Railway Station", lat: 31.6340, lng: 74.8723 },
-          { id: "STOP_02", name: "Bhandari Bridge", lat: 31.6312, lng: 74.8765 },
-          { id: "STOP_03", name: "Hall Bazaar", lat: 31.6285, lng: 74.8790 },
-          { id: "STOP_04", name: "Golden Temple (Harmandir Sahib)", lat: 31.6200, lng: 74.8765 },
-          { id: "STOP_05", name: "Jallianwala Bagh", lat: 31.6215, lng: 74.8801 },
-          { id: "STOP_06", name: "ISBT Amritsar", lat: 31.6150, lng: 74.8920 }
+          { id: 'STOP_01', name: 'Amritsar Railway Station', coordIdx: 0 },
+          { id: 'STOP_02', name: 'Bhandari Bridge',          coordIdx: 4 },
+          { id: 'STOP_03', name: 'Hall Bazaar',              coordIdx: 8 },
+          { id: 'STOP_04', name: 'Golden Temple',            coordIdx: 14 },
+          { id: 'STOP_05', name: 'Jallianwala Bagh',         coordIdx: 17 },
+          { id: 'STOP_06', name: 'ISBT Amritsar',            coordIdx: 22 }
         ]
       },
       ROUTE_101: {
-        id: "ROUTE_101",
-        name: "Ludhiana: Clock Tower ➔ Model Town",
-        busId: "BUS_201",
+        id: 'ROUTE_101',
+        name: 'Ludhiana: Clock Tower ➔ Model Town',
+        busId: 'BUS_201',
+        center: [30.9020, 75.8310],
+        zoom: 13,
         coords: [
-          [30.9100, 75.8510], // Clock Tower
-          [30.9030, 75.8080], // PAU Gate 1
-          [30.8920, 75.8320]  // Model Town
+          [30.9100, 75.8510],
+          [30.9085, 75.8450],
+          [30.9070, 75.8390],
+          [30.9055, 75.8330],
+          [30.9042, 75.8270],
+          [30.9030, 75.8080],
+          [30.9010, 75.8140],
+          [30.8990, 75.8200],
+          [30.8970, 75.8250],
+          [30.8950, 75.8285],
+          [30.8920, 75.8320]
         ],
         stops: [
-          { id: "STOP_10", name: "Ludhiana Clock Tower", lat: 30.9100, lng: 75.8510 },
-          { id: "STOP_11", name: "PAU Gate 1", lat: 30.9030, lng: 75.8080 },
-          { id: "STOP_12", name: "Model Town", lat: 30.8920, lng: 75.8320 }
+          { id: 'STOP_10', name: 'Ludhiana Clock Tower', coordIdx: 0 },
+          { id: 'STOP_11', name: 'PAU Gate 1',           coordIdx: 5 },
+          { id: 'STOP_12', name: 'Model Town',           coordIdx: 10 }
         ]
       },
       ROUTE_202: {
-        id: "ROUTE_202",
-        name: "Jalandhar: Bus Stand ➔ Rama Mandi",
-        busId: "BUS_102",
+        id: 'ROUTE_202',
+        name: 'Jalandhar: Bus Stand ➔ Rama Mandi',
+        busId: 'BUS_102',
+        center: [31.3190, 75.5950],
+        zoom: 13,
         coords: [
-          [31.3200, 75.5800], // Bus Stand
-          [31.3260, 75.5760], // BMC Chowk
-          [31.3110, 75.6120]  // Rama Mandi
+          [31.3200, 75.5800],
+          [31.3215, 75.5790],
+          [31.3228, 75.5778],
+          [31.3242, 75.5770],
+          [31.3255, 75.5763],
+          [31.3260, 75.5760],
+          [31.3245, 75.5820],
+          [31.3225, 75.5890],
+          [31.3200, 75.5960],
+          [31.3170, 75.6030],
+          [31.3140, 75.6080],
+          [31.3110, 75.6120]
         ],
         stops: [
-          { id: "STOP_20", name: "Jalandhar Bus Stand", lat: 31.3200, lng: 75.5800 },
-          { id: "STOP_21", name: "BMC Chowk", lat: 31.3260, lng: 75.5760 },
-          { id: "STOP_22", name: "Rama Mandi", lat: 31.3110, lng: 75.6120 }
+          { id: 'STOP_20', name: 'Jalandhar Bus Stand', coordIdx: 0 },
+          { id: 'STOP_21', name: 'BMC Chowk',           coordIdx: 5 },
+          { id: 'STOP_22', name: 'Rama Mandi',          coordIdx: 11 }
         ]
       }
     };
 
-    let currentRoute = ROUTES_DATA.ROUTE_4B;
-    let currentPolyline = null;
-    let stopMarkers = [];
-
-    // Initialize Leaflet Map
-    const map = L.map('map').setView([31.6285, 74.8790], 14);
-
+    // ─────────────────────────────────────────────
+    //  MAP INIT
+    // ─────────────────────────────────────────────
+    const map = L.map('map').setView([31.6270, 74.8780], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors | SafarSathi Punjab IDSVH26003'
+      attribution: '© OpenStreetMap contributors | SafarSathi Punjab IDSVH26003'
     }).addTo(map);
 
-    // Bus Marker
     const busIcon = L.divIcon({
-      html: '<div style="font-size:24px; background:#1e293b; border:2px solid #22c55e; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px #22c55e;">🚌</div>',
+      html: '<div style="font-size:22px; background:#1e293b; border:2px solid #22c55e; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px #22c55e;">🚌</div>',
       iconSize: [36, 36],
       iconAnchor: [18, 18]
     });
-    let busMarker = L.marker([31.6340, 74.8723], { icon: busIcon }).addTo(map);
 
-    // Socket.io Connection
-    const socket = io();
+    let currentRoute    = ROUTES_DATA.ROUTE_4B;
+    let currentPolyline = null;
+    let stopMarkers     = [];
+    let busMarker       = null;
 
+    // ─────────────────────────────────────────────
+    //  RENDER ROUTE ON MAP
+    // ─────────────────────────────────────────────
     function renderRoute(route) {
       if (currentPolyline) map.removeLayer(currentPolyline);
       stopMarkers.forEach(m => map.removeLayer(m));
       stopMarkers = [];
+      if (busMarker) map.removeLayer(busMarker);
 
-      currentPolyline = L.polyline(route.coords, { color: '#f97316', weight: 6, opacity: 0.85 }).addTo(map);
+      currentPolyline = L.polyline(route.coords, {
+        color: '#f97316', weight: 5, opacity: 0.85
+      }).addTo(map);
       map.fitBounds(currentPolyline.getBounds(), { padding: [40, 40] });
 
-      route.stops.forEach(s => {
-        const marker = L.circleMarker([s.lat, s.lng], {
-          radius: 6,
-          fillColor: '#38bdf8',
-          color: '#fff',
-          weight: 2,
-          fillOpacity: 1
-        }).bindPopup(`<b>${s.name}</b>`).addTo(map);
-        stopMarkers.push(marker);
+      route.stops.forEach((s, idx) => {
+        const latlng = route.coords[s.coordIdx];
+        const m = L.circleMarker(latlng, {
+          radius: 7, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 1
+        }).bindPopup(`<b>${s.name}</b><br><small>Stop ${idx + 1} of ${route.stops.length}</small>`).addTo(map);
+        stopMarkers.push(m);
       });
 
-      busMarker.setLatLng(route.coords[0]);
-      busMarker.bindPopup(`Bus ${route.busId} (${route.name})`);
+      busMarker = L.marker(route.coords[0], { icon: busIcon })
+        .bindPopup(`<b>Bus ${route.busId}</b><br>${route.name}`)
+        .addTo(map);
+
+      document.getElementById('eta-title').innerText = `⏱️ Live Stop ETAs — ${route.name}`;
     }
 
+    // ─────────────────────────────────────────────
+    //  ROUTE CHANGE
+    // ─────────────────────────────────────────────
     function onRouteChanged(routeId) {
-      if (isDriving) toggleDriverStream(); // Stop simulation if running
+      if (isDriving) toggleDriverStream();
+      driveStep = 0;
+      lastBusPos = null;
+      animFrameId && cancelAnimationFrame(animFrameId);
 
       currentRoute = ROUTES_DATA[routeId] || ROUTES_DATA.ROUTE_4B;
-      document.getElementById('eta-title').innerText = `⏱️ Live Stop ETAs (${currentRoute.name})`;
-
       renderRoute(currentRoute);
-
       socket.emit('join_route', currentRoute.id);
 
+      // Load initial ETAs from server
       fetch(`/api/eta/route/${currentRoute.id}`)
         .then(r => r.json())
         .then(data => {
@@ -348,61 +398,24 @@
         .catch(() => renderFallbackStops(currentRoute.stops));
     }
 
-    function renderFallbackStops(stops) {
-      const container = document.getElementById('eta-container');
-      container.innerHTML = '';
-      stops.forEach((s, idx) => {
-        const item = document.createElement('div');
-        item.className = 'eta-item';
-        item.innerHTML = `
-          <div>
-            <strong>${s.name}</strong>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${idx === 0 ? 'STARTING' : 'UPCOMING'}</div>
-          </div>
-          <span class="eta-badge">${idx * 3 + 1} min</span>
-        `;
-        container.appendChild(item);
-      });
-    }
+    // ─────────────────────────────────────────────
+    //  SOCKET
+    // ─────────────────────────────────────────────
+    const socket = io();
 
-    // Initial render
-    renderRoute(currentRoute);
-    socket.emit('join_route', currentRoute.id);
-
-    // Populate GTFS district routes dynamically into select
-    fetch('/api/routes')
-      .then(r => r.json())
-      .then(routes => {
-        const select = document.getElementById('route-select');
-        const optGroup = document.createElement('optgroup');
-        optGroup.label = 'Punjab District GTFS Lines';
-        routes.forEach(r => {
-          if (r.stops && r.stops.length >= 2) {
-            const opt = document.createElement('option');
-            opt.value = r.id;
-            opt.innerText = r.name;
-            optGroup.appendChild(opt);
-
-            // Register in ROUTES_DATA
-            ROUTES_DATA[r.id] = {
-              id: r.id,
-              name: r.name,
-              busId: `BUS_${r.id.replace('route-', '').toUpperCase()}`,
-              coords: r.stops.map(s => [s.latitude, s.longitude]),
-              stops: r.stops.map((s, idx) => ({
-                id: s.id || `stop_${idx}`,
-                name: s.name,
-                lat: s.latitude,
-                lng: s.longitude
-              }))
-            };
+    socket.on('connect', () => {
+      socket.emit('join_route', currentRoute.id);
+      fetch(`/api/eta/route/${currentRoute.id}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.data && data.data.length > 0) {
+            updateETAUi(data.data[0].stops);
+          } else {
+            renderFallbackStops(currentRoute.stops);
           }
-        });
-        if (optGroup.children.length > 0) {
-          select.appendChild(optGroup);
-        }
-      })
-      .catch(() => {});
+        })
+        .catch(() => renderFallbackStops(currentRoute.stops));
+    });
 
     socket.on('initial_eta_update', (data) => {
       if (data.buses && data.buses.length > 0) {
@@ -412,89 +425,247 @@
 
     socket.on('bus_location_broadcast', (data) => {
       if (data.location) {
-        busMarker.setLatLng([data.location.lat, data.location.lng]);
-        map.panTo([data.location.lat, data.location.lng]);
+        smoothMoveBus(data.location.lat, data.location.lng);
       }
       if (data.bandwidthUsage) {
-        document.getElementById('gauge-size').innerText = `${data.bandwidthUsage.kilobytesReceived} KB`;
+        const kb = parseFloat(data.bandwidthUsage.kilobytesReceived || 0).toFixed(3);
+        document.getElementById('gauge-size').innerText = `${kb} KB`;
+        const badge = document.getElementById('gauge-badge');
+        badge.innerText = parseFloat(kb) < 1.0 ? 'PASSED ✓' : 'WARN';
+        badge.style.background = parseFloat(kb) < 1.0 ? '#166534' : '#854d0e';
+        badge.style.color      = parseFloat(kb) < 1.0 ? '#4ade80' : '#facc15';
       }
       if (data.etas && data.etas.length > 0) {
         updateETAUi(data.etas);
+        const congested = data.etas.some(e => e.isCongested);
+        const el = document.getElementById('eta-congestion');
+        el.innerText = congested ? '🔴 Traffic Congestion' : '🟢 Clear';
+        el.style.color = congested ? '#f87171' : '#4ade80';
       }
     });
 
+    // ─────────────────────────────────────────────
+    //  SMOOTH BUS ANIMATION
+    // ─────────────────────────────────────────────
+    let lastBusPos   = null;
+    let animFrameId  = null;
+    let animStart    = null;
+    const ANIM_DURATION_MS = 2800; // animate over ~2.8s between 3s pings
+
+    function smoothMoveBus(toLat, toLng) {
+      if (!busMarker) return;
+      const from = lastBusPos || { lat: toLat, lng: toLng };
+      lastBusPos = { lat: toLat, lng: toLng };
+
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      animStart = null;
+
+      function step(timestamp) {
+        if (!animStart) animStart = timestamp;
+        const elapsed = timestamp - animStart;
+        const t = Math.min(elapsed / ANIM_DURATION_MS, 1);
+        // Ease-in-out cubic
+        const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+        const lat = from.lat + (toLat - from.lat) * ease;
+        const lng = from.lng + (toLng - from.lng) * ease;
+        busMarker.setLatLng([lat, lng]);
+
+        if (t < 1) {
+          animFrameId = requestAnimationFrame(step);
+        } else {
+          animStart = null;
+        }
+      }
+      animFrameId = requestAnimationFrame(step);
+    }
+
+    // ─────────────────────────────────────────────
+    //  DRIVER SIMULATOR — walks every coord point
+    // ─────────────────────────────────────────────
+    let isDriving     = false;
+    let driveInterval = null;
+    let driveStep     = 0;
+    const PING_INTERVAL_MS = 3000;
+
+    function toggleDriverStream() {
+      const btn = document.getElementById('btn-drive');
+      const dot = document.getElementById('drive-dot');
+      const stat = document.getElementById('drive-status');
+
+      if (!isDriving) {
+        isDriving = true;
+        driveStep = 0;
+        btn.innerText = '⏸️ Stop GPS Drive Stream';
+        btn.style.background = '#dc2626';
+        dot.classList.add('live');
+        stat.innerText = 'Live';
+        stat.style.color = 'var(--accent-green)';
+
+        // Send first ping immediately
+        sendDrivePing();
+
+        driveInterval = setInterval(() => {
+          driveStep++;
+          if (driveStep >= currentRoute.coords.length) {
+            // Route complete — loop back to start
+            driveStep = 0;
+          }
+          sendDrivePing();
+        }, PING_INTERVAL_MS);
+
+      } else {
+        isDriving = false;
+        clearInterval(driveInterval);
+        driveInterval = null;
+        btn.innerText = '▶️ Start Live GPS Drive Stream';
+        btn.style.background = 'var(--accent-orange)';
+        dot.classList.remove('live');
+        stat.innerText = 'Idle';
+        stat.style.color = 'var(--text-muted)';
+      }
+    }
+
+    function sendDrivePing() {
+      const pos = currentRoute.coords[driveStep];
+      // Hyper-compressed payload: [lat, lng, busId, speedKmh, bearing, timestamp]
+      const bearing = driveStep > 0
+        ? calcBearing(currentRoute.coords[driveStep - 1], pos)
+        : 0;
+      const payload = [pos[0], pos[1], currentRoute.busId, 30.0, Math.round(bearing), Date.now()];
+      socket.emit('driver_ping_compressed', payload);
+    }
+
+    function calcBearing(from, to) {
+      const dLng = (to[1] - from[1]) * Math.PI / 180;
+      const lat1 = from[0] * Math.PI / 180;
+      const lat2 = to[0]   * Math.PI / 180;
+      const y = Math.sin(dLng) * Math.cos(lat2);
+      const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+      return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+    }
+
+    // ─────────────────────────────────────────────
+    //  ETA UI RENDERING
+    // ─────────────────────────────────────────────
     function updateETAUi(stops) {
       const container = document.getElementById('eta-container');
       container.innerHTML = '';
       stops.forEach(s => {
         const item = document.createElement('div');
         item.className = 'eta-item';
+
+        let badgeClass = 'eta-badge';
+        let badgeText  = `${s.etaMinutes ?? '--'} min`;
+        if (s.status === 'PASSED' || s.status === 'passed') {
+          badgeClass += ' passed'; badgeText = '✓ Passed';
+        } else if (s.status === 'ARRIVED' || s.etaMinutes === 0) {
+          badgeClass += ' arrived'; badgeText = '🟢 Here';
+        }
+
         item.innerHTML = `
           <div>
-            <strong>${s.stopName}</strong>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${s.status} • ${s.distanceKm} km</div>
+            <strong>${s.stopName || s.name}</strong>
+            <div style="font-size:0.73rem; color:var(--text-muted);">${s.status || ''} ${s.distanceKm != null ? '• ' + s.distanceKm + ' km' : ''}</div>
           </div>
-          <span class="eta-badge">${s.etaMinutes} min</span>
+          <span class="${badgeClass}">${badgeText}</span>
         `;
         container.appendChild(item);
       });
     }
 
-    // Driver Stream Simulation
-    let isDriving = false;
-    let driveInterval = null;
-    let driveStep = 0;
-
-    function toggleDriverStream() {
-      const btn = document.getElementById('btn-drive');
-      if (!isDriving) {
-        isDriving = true;
-        btn.innerText = '⏸️ Stop GPS Drive Stream';
-        btn.style.background = '#dc2626';
-
-        driveInterval = setInterval(() => {
-          driveStep = (driveStep + 1) % currentRoute.coords.length;
-          const pos = currentRoute.coords[driveStep];
-          const compressedPing = [pos[0], pos[1], currentRoute.busId, 35.0, 140, Date.now()];
-          socket.emit('driver_ping_compressed', compressedPing);
-        }, 3000);
-      } else {
-        isDriving = false;
-        clearInterval(driveInterval);
-        btn.innerText = '▶️ Start Live GPS Drive Stream';
-        btn.style.background = 'var(--accent-orange)';
-      }
+    function renderFallbackStops(stops) {
+      const container = document.getElementById('eta-container');
+      container.innerHTML = '';
+      stops.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = 'eta-item';
+        item.innerHTML = `
+          <div>
+            <strong>${s.name}</strong>
+            <div style="font-size:0.73rem; color:var(--text-muted);">Stop ${idx + 1}</div>
+          </div>
+          <span class="eta-badge">${idx === 0 ? '🟢 Start' : (idx * 4) + ' min'}</span>
+        `;
+        container.appendChild(item);
+      });
     }
 
-    // Vernacular Language Toggle
+    // ─────────────────────────────────────────────
+    //  LANGUAGE TOGGLE
+    // ─────────────────────────────────────────────
     const translations = {
-      en: { title: "🚌 SafarSathi", sub: "Punjab Public Transport Tracking Engine", voice: "Voice Search Stop" },
-      pa: { title: "🚌 ਸਫ਼ਰ ਸਾਥੀ", sub: "ਪੰਜਾਬ ਜਨਤਕ ਟ੍ਰਾਂਸਪੋਰਟ ਟ੍ਰੈਕਿੰਗ ਇੰਜਣ", voice: "ਆਵਾਜ਼ ਨਾਲ ਬੱਸ ਸਟਾਪ ਲੱਭੋ" },
-      hi: { title: "🚌 सफ़र साथी", sub: "पंजाब सार्वजनिक परिवहन ट्रैकिंग इंजन", voice: "आवाज से बस स्टॉप खोजें" }
+      en: { title: '🚌 SafarSathi (ਸਫ਼ਰ ਸਾਥੀ)', sub: 'Punjab Public Transport Tracking Engine', voice: 'Voice Search Stop' },
+      pa: { title: '🚌 ਸਫ਼ਰ ਸਾਥੀ', sub: 'ਪੰਜਾਬ ਜਨਤਕ ਟ੍ਰਾਂਸਪੋਰਟ ਟ੍ਰੈਕਿੰਗ ਇੰਜਣ', voice: 'ਆਵਾਜ਼ ਨਾਲ ਬੱਸ ਸਟਾਪ ਲੱਭੋ' },
+      hi: { title: '🚌 सफ़र साथी', sub: 'पंजाब सार्वजनिक परिवहन ट्रैकिंग इंजन', voice: 'आवाज से बस स्टॉप खोजें' }
     };
 
-    function setLanguage(lang) {
+    function setLanguage(lang, btn) {
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (btn) btn.classList.add('active');
       const t = translations[lang];
-      document.getElementById('app-title').innerText = t.title;
+      document.getElementById('app-title').innerText    = t.title;
       document.getElementById('app-subtitle').innerText = t.sub;
-      document.getElementById('btn-voice').innerText = t.voice;
+      document.getElementById('btn-voice').innerText    = t.voice;
     }
 
     function simulateVoiceSearch() {
-      alert("🎙️ Listening... Say stop name in Punjabi / Hindi (e.g. 'Golden Temple' / 'ਗੋਲਡਨ ਟੈਂਪਲ').\nResult: Found Golden Temple Stop (0.97 km away)");
+      alert('🎙️ Listening...\nSay stop name in Punjabi / Hindi / English\n\nResult: Found "Golden Temple" stop — 0.97 km away');
     }
 
     function reportCrowd(rating) {
       fetch('/api/crowd/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ busId: 'BUS_101', rating })
+        body: JSON.stringify({ busId: currentRoute.busId, rating, routeId: currentRoute.id })
       })
       .then(res => res.json())
-      .then(data => alert(`✅ Crowdsourced Occupancy '${rating}' reported successfully!`));
+      .then(() => alert(`✅ Occupancy "${rating}" reported for bus ${currentRoute.busId}!`))
+      .catch(() => alert('⚠️ Could not submit report. Is the server running?'));
     }
+
+    // ─────────────────────────────────────────────
+    //  LOAD GTFS DISTRICT ROUTES INTO DROPDOWN
+    // ─────────────────────────────────────────────
+    fetch('/api/routes')
+      .then(r => r.json())
+      .then(routes => {
+        const select = document.getElementById('route-select');
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = 'Punjab District GTFS Lines';
+        routes.forEach(r => {
+          if (r.stops && r.stops.length >= 2) {
+            const opt = document.createElement('option');
+            opt.value    = r.id;
+            opt.innerText = r.name;
+            optGroup.appendChild(opt);
+
+            // Build intermediate coords from stops
+            const coords = r.stops.map(s => [s.latitude, s.longitude]);
+            ROUTES_DATA[r.id] = {
+              id:     r.id,
+              name:   r.name,
+              busId:  `BUS_${r.id.replace('route-', '').toUpperCase()}`,
+              center: coords[0],
+              zoom:   13,
+              coords,
+              stops: r.stops.map((s, idx) => ({
+                id:       s.id || `stop_${idx}`,
+                name:     s.name,
+                coordIdx: idx
+              }))
+            };
+          }
+        });
+        if (optGroup.children.length > 0) select.appendChild(optGroup);
+      })
+      .catch(() => {});
+
+    // ─────────────────────────────────────────────
+    //  INITIAL RENDER
+    // ─────────────────────────────────────────────
+    renderRoute(currentRoute);
+    renderFallbackStops(currentRoute.stops);
   </script>
 </body>
 </html>

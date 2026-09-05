@@ -8,7 +8,7 @@ import '../modelss/stop.dart';
 
 class ApiService {
   /// Toggle to switch between local laptop backend and live cloud backend
-  static const bool useLocalBackend = true;
+  static const bool useLocalBackend = false;
 
   static String get baseUrl {
     if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com/api';
@@ -333,3 +333,4 @@ class ApiException implements Exception {
     return 'ApiException ($statusCode): $message';
   }
 }
+

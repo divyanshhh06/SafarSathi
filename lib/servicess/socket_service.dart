@@ -19,7 +19,7 @@ class SocketService {
   SocketService._internal();
 
   /// Toggle to switch between local laptop backend and live cloud backend
-  static const bool useLocalBackend = true;
+  static const bool useLocalBackend = false;
 
   static String get backendUrl {
     if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com';
@@ -243,3 +243,4 @@ class SocketService {
     _controller.close();
   }
 }
+

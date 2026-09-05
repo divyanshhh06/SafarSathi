@@ -1,35 +1,57 @@
 require('dotenv').config();
 const Redis = require('ioredis');
 
-// Connect to local or remote Redis instance
-const redis = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
-});
+// Fallback in-memory RAM cache when local Redis server is not installed/running
+const memoryCache = new Map();
+
+let redis = null;
+
+try {
+  redis = new Redis({
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+    retryStrategy: () => null, // Prevent connection retry loops if offline
+  });
+
+  // Catch connection errors silently to avoid crashing server.js on Windows
+  redis.on('error', () => {
+    // Suppress ECONNREFUSED log spam when local Redis is absent
+  });
+} catch (_) {}
 
 /**
  * Cache a driver's live coordinate.
- * IMPORTANT: Redis GEOADD syntax requires LONGITUDE first, then LATITUDE.
+ * Uses Redis GEOADD if available, with in-memory Map fallback.
  */
 async function updateBusLocation(busId, lat, lng) {
-  // GEOADD live_buses <longitude> <latitude> <member_id>
-  await redis.geoadd('live_buses', lng, lat, busId);
+  memoryCache.set(busId, { lat, lng });
+
+  if (redis && redis.status === 'ready') {
+    try {
+      await redis.geoadd('live_buses', lng, lat, busId);
+    } catch (_) {}
+  }
 }
 
 /**
- * Sub-100ms spatial lookup from RAM.
+ * Fast spatial lookup from RAM or Redis.
  */
 async function getBusLocation(busId) {
-  const pos = await redis.geopos('live_buses', busId);
+  if (redis && redis.status === 'ready') {
+    try {
+      const pos = await redis.geopos('live_buses', busId);
+      if (pos && pos[0] && pos[0][0]) {
+        return {
+          lat: parseFloat(pos[0][1]),
+          lng: parseFloat(pos[0][0]),
+        };
+      }
+    } catch (_) {}
+  }
 
-  // Return null if location hasn't been set or is empty
-  if (!pos || !pos[0] || !pos[0][0]) return null;
-
-  // pos[0] returns strings: [longitude, latitude]
-  return {
-    lat: parseFloat(pos[0][1]),
-    lng: parseFloat(pos[0][0])
-  };
+  return memoryCache.get(busId) || null;
 }
 
 module.exports = { redis, updateBusLocation, getBusLocation };

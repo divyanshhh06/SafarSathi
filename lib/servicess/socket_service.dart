@@ -1,20 +1,58 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:latlong2/latlong.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+
 import '../modelss/bus.dart';
+import 'eta_service.dart';
 
 /// Single source of truth for live bus data and BE-1 Socket.IO backend communication.
 class SocketService {
-  static String get backendUrl => 'https://safarsathi-backend-eteo.onrender.com';
+  static final SocketService _instance = SocketService._internal();
+
+  factory SocketService() {
+    return _instance;
+  }
+
+  SocketService._internal();
+
+  /// Toggle to switch between local laptop backend and live cloud backend
+  static const bool useLocalBackend = true;
+
+  static String get backendUrl {
+    if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com';
+    if (kIsWeb) return 'http://localhost:3000';
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:3000';
+    }
+    return 'http://localhost:3000';
+  }
+
+  /// Calculates dynamic traffic-adjusted ETA in minutes
+  static int calculateEtaMinutes({
+    required LatLng busPos,
+    required LatLng targetPos,
+    required double speedKmh,
+    String? fromStopId,
+    String? toStopId,
+  }) {
+    return EtaService.calculateEtaMinutes(
+      busPos: busPos,
+      targetPos: targetPos,
+      speedKmh: speedKmh,
+      fromStopId: fromStopId,
+      toStopId: toStopId,
+    );
+  }
 
   io.Socket? _socket;
   final StreamController<List<Bus>> _controller =
       StreamController<List<Bus>>.broadcast();
 
   final Map<String, Bus> _busMap = {};
+
 
   Stream<List<Bus>> connect({String? routeId}) {
     if (_socket == null) {

@@ -139,24 +139,20 @@ class _RouteSearchBarState extends State<RouteSearchBar> {
       return;
     }
 
-    final lower = query.toLowerCase();
+    final lower = query.toLowerCase().trim();
     final matches = widget.routes.where((route) {
       final routeName = route.getLocalizedName(widget.currentLang).toLowerCase();
-      final routeMatch =
-          routeName.contains(lower) || route.id.toLowerCase().contains(lower);
+      if (routeName.contains(lower) || route.id.toLowerCase().contains(lower)) {
+        return true;
+      }
 
       final stopMatch = route.stops.any((stop) {
-        final stopName = stop.getLocalizedName(widget.currentLang).toLowerCase();
-        return stopName.contains(lower) || stop.name.toLowerCase().contains(lower);
+        final stopName = stop.name.toLowerCase();
+        final stopCity = stop.city.toLowerCase();
+        return stopName.contains(lower) || stopCity.contains(lower);
       });
 
-      final apiStopMatch = widget.stops.any((stop) {
-        return stop.name.toLowerCase().contains(lower) ||
-            stop.city.toLowerCase().contains(lower) ||
-            stop.state.toLowerCase().contains(lower);
-      });
-
-      return routeMatch || stopMatch || apiStopMatch;
+      return stopMatch;
     }).toList();
 
     setState(() {

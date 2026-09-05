@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../modelss/bus.dart';
@@ -7,7 +7,19 @@ import '../modelss/bus_route.dart';
 import '../modelss/stop.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://safarsathi-backend-eteo.onrender.com/api';
+  /// Toggle to switch between local laptop backend and live cloud backend
+  static const bool useLocalBackend = true;
+
+  static String get baseUrl {
+    if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com/api';
+    if (kIsWeb) return 'http://localhost:3000/api';
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:3000/api';
+    }
+    return 'http://localhost:3000/api';
+  }
+
+
 
   final http.Client _client;
 
@@ -81,19 +93,58 @@ class ApiService {
   // ---------------------------------------------------------------------------
 
   Future<List<BusRoute>> getRoutes() async {
-    final response = await _client.get(
-      Uri.parse('$baseUrl/routes'),
-      headers: _headers,
-    );
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/routes'),
+        headers: _headers,
+      );
 
-    _checkResponse(response);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        if (data.isNotEmpty) {
+          return data
+              .map((json) => BusRoute.fromJson(json as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
 
-    final List<dynamic> data = jsonDecode(response.body);
+    // Fallback route synthesis directly from live GET /stops API
+    try {
+      final stops = await getStops();
+      if (stops.isNotEmpty) {
+        final Map<String, List<BusStop>> districtMap = {};
+        for (final stop in stops) {
+          final district = stop.city.isNotEmpty ? stop.city : 'Punjab';
+          districtMap.putIfAbsent(district, () => []).add(stop);
+        }
 
-    return data
-        .map((json) => BusRoute.fromJson(json as Map<String, dynamic>))
-        .toList();
+        final List<BusRoute> synthesizedRoutes = [];
+        districtMap.forEach((district, dStops) {
+          synthesizedRoutes.add(
+            BusRoute(
+              id: 'route-${district.toLowerCase().replaceAll(' ', '-')}',
+              name: '$district Intercity Line',
+              stops: dStops
+                  .map((s) => RouteStop(
+                        id: s.id,
+                        name: s.name,
+                        city: s.city,
+                        position: s.position,
+                      ))
+                  .toList(),
+              path: dStops.map((s) => s.position).toList(),
+            ),
+          );
+        });
+
+        return synthesizedRoutes;
+      }
+    } catch (_) {}
+
+    return [];
   }
+
 
   Future<BusRoute> getRoute(String routeId) async {
     final response = await _client.get(

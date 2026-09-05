@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
 import '../modelss/bus_route.dart';
@@ -46,14 +47,102 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       final routes = await _apiService.getRoutes();
       if (mounted) {
         setState(() {
-          _routes = routes;
+          _routes = routes.isNotEmpty ? routes : _generateFallbackPunjabRoutes();
+          if (_selectedRoute == null && _routes.isNotEmpty) {
+            _selectedRoute = _routes.first;
+          }
         });
       }
       _restoreState();
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to load routes from API: $e');
+      if (mounted) {
+        setState(() {
+          _routes = _generateFallbackPunjabRoutes();
+          if (_selectedRoute == null && _routes.isNotEmpty) {
+            _selectedRoute = _routes.first;
+          }
+        });
+      }
+      _restoreState();
     }
+  }
+
+  List<BusRoute> _generateFallbackPunjabRoutes() {
+    return [
+      const BusRoute(
+        id: 'route-moga-ludhiana',
+        name: 'Moga - Ludhiana Express (GT Road)',
+        stops: [],
+        path: [LatLng(30.8119303, 75.3356210), LatLng(30.900965, 75.8572758)],
+      ),
+      const BusRoute(
+        id: 'route-ludhiana-jalandhar',
+        name: 'Ludhiana - Jalandhar Intercity (NH-44)',
+        stops: [],
+        path: [LatLng(30.900965, 75.8572758), LatLng(31.326015, 75.5761829)],
+      ),
+      const BusRoute(
+        id: 'route-jalandhar-amritsar',
+        name: 'Jalandhar - Amritsar Superfast',
+        stops: [],
+        path: [LatLng(31.326015, 75.5761829), LatLng(31.6339793, 74.8722642)],
+      ),
+      const BusRoute(
+        id: 'route-bathinda-patiala',
+        name: 'Bathinda - Patiala Highway Line',
+        stops: [],
+        path: [LatLng(30.210994, 74.9454745), LatLng(30.3397809, 76.3868797)],
+      ),
+    ];
+  }
+
+  void _showAddRouteDialog() {
+    final nameController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.add_road_rounded, color: Colors.indigo),
+            SizedBox(width: 8),
+            Text('Create Custom Route'),
+          ],
+        ),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'Route Name (e.g. Moga to Amritsar Direct)',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final text = nameController.text.trim();
+              if (text.isNotEmpty) {
+                final newRoute = BusRoute(
+                  id: 'custom-${DateTime.now().millisecondsSinceEpoch}',
+                  name: text,
+                  stops: const [],
+                  path: [const LatLng(30.8119303, 75.3356210)],
+                );
+                setState(() {
+                  _routes.insert(0, newRoute);
+                  _selectedRoute = newRoute;
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add Route'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _restoreState() {
@@ -63,7 +152,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
     if (savedBusId != null && savedRouteId != null && _routes.isNotEmpty) {
       final route = _routes.firstWhere(
-            (r) => r.id == savedRouteId,
+        (r) => r.id == savedRouteId,
         orElse: () => _routes.first,
       );
       setState(() {
@@ -71,9 +160,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         _busId = savedBusId;
         _selectedRoute = route;
       });
-      _locationService.startTracking(busId: savedBusId, routeId: route.id);
+      _locationService.startTracking(
+        busId: savedBusId,
+        routeId: route.id,
+        routePath: route.path,
+      );
     }
   }
+
 
   Future<void> _startTrip() async {
     if (_selectedRoute == null) {
@@ -90,6 +184,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       await _locationService.startTracking(
         busId: busId,
         routeId: _selectedRoute!.id,
+        routePath: _selectedRoute!.path,
       );
     } catch (e) {
       if (!mounted) return;
@@ -164,11 +259,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              if (!_isTripActive) _RoutePicker(
-                routes: _routes,
-                selected: _selectedRoute,
-                onChanged: (route) => setState(() => _selectedRoute = route),
-              ),
+              if (!_isTripActive)
+                _RoutePicker(
+                  routes: _routes,
+                  selected: _selectedRoute,
+                  onChanged: (route) => setState(() => _selectedRoute = route),
+                  onAddRoute: _showAddRouteDialog,
+                ),
+
               if (_isTripActive)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -208,29 +306,52 @@ class _RoutePicker extends StatelessWidget {
   final List<BusRoute> routes;
   final BusRoute? selected;
   final ValueChanged<BusRoute?> onChanged;
+  final VoidCallback onAddRoute;
 
   const _RoutePicker({
     required this.routes,
     required this.selected,
     required this.onChanged,
+    required this.onAddRoute,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<BusRoute>(
-      key: ValueKey(selected?.id ?? ''),
-      initialValue: selected,
-      decoration: const InputDecoration(
-        labelText: 'Route',
-        border: OutlineInputBorder(),
-      ),
-      items: routes
-          .map((r) => DropdownMenuItem(value: r, child: Text(r.name)))
-          .toList(),
-      onChanged: routes.isEmpty ? null : onChanged,
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<BusRoute>(
+            key: ValueKey(selected?.id ?? ''),
+            initialValue: selected,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Select Assigned Route',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+            items: routes
+                .map((r) => DropdownMenuItem(
+                      value: r,
+                      child: Text(
+                        r.name,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))
+                .toList(),
+            onChanged: routes.isEmpty ? null : onChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton.filledTonal(
+          onPressed: onAddRoute,
+          icon: const Icon(Icons.add_rounded),
+          tooltip: 'Add Custom Route',
+        ),
+      ],
     );
   }
 }
+
 
 class _BigButton extends StatelessWidget {
   final String label;

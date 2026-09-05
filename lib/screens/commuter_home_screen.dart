@@ -9,6 +9,7 @@ import '../modelss/stop.dart';
 import '../servicess/socket_service.dart';
 import '../servicess/road_routing_service.dart';
 import '../servicess/api_service.dart';
+import '../servicess/eta_service.dart';
 import '../widget/route_search_bar.dart';
 import '../widget/route_sheet.dart';
 import '../widget/animated_bus_marker.dart';
@@ -27,11 +28,12 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   final ApiService _apiService = ApiService();
 
   List<Bus> _liveBuses = [];
-  List<Polyline> _routePolylines = [];
   List<BusStop> _apiStops = [];
   List<BusRoute> _apiRoutes = [];
   List<BusRoute> _sortedRoutes = [];
   Bus? _selectedBus;
+  BusRoute? _selectedRoute;
+  Polyline? _highlightedPolyline;
 
   String _currentLang = 'en'; // 'en', 'pa', 'hi'
   String _busQuery = '';
@@ -43,7 +45,6 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadRoadPolylines();
     _loadApiStops();
     _loadApiRoutes();
     _socketService.connect().listen((buses) {
@@ -100,46 +101,38 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     }
   }
 
-
-  Future<void> _loadRoadPolylines() async {
-    final polylines = <Polyline>[];
-    final colors = [
-      const Color(0xFF2E3192),
-      const Color(0xFFE65100),
-    ];
-
-    int colorIndex = 0;
-    for (final route in _apiRoutes) {
-      final roadPoints = await RoadRoutingService.getRoadPath(route.path);
-      polylines.add(
-        Polyline(
-          points: roadPoints.isNotEmpty ? roadPoints : route.path,
-          strokeWidth: 4.5,
-          color: colors[colorIndex % colors.length],
-        ),
-      );
-      colorIndex++;
-    }
-
-    if (mounted) {
-      setState(() {
-        _routePolylines = polylines;
-      });
-    }
-  }
-
   @override
   void dispose() {
     _socketService.dispose();
     super.dispose();
   }
 
-  void _onRouteSelected(BusRoute route) {
+  Future<void> _onRouteSelected(BusRoute route) async {
     _socketService.joinRoute(route.id);
-    _mapController.move(route.stops.first.position, 14);
+
+    final roadPoints = await RoadRoutingService.getRoadPath(route.path);
+    final polyline = Polyline(
+      points: roadPoints.isNotEmpty ? roadPoints : route.path,
+      strokeWidth: 6.0,
+      color: const Color(0xFF2E3192),
+    );
+
+    final targetCenter = route.stops.isNotEmpty
+        ? route.stops.first.position
+        : (route.path.isNotEmpty ? route.path.first : _initialCenter);
+
+    if (mounted) {
+      setState(() {
+        _selectedRoute = route;
+        _highlightedPolyline = polyline;
+      });
+      _mapController.move(targetCenter, 12);
+    }
 
     final busesOnRoute =
         _liveBuses.where((b) => b.routeId == route.id).toList();
+
+    if (!mounted) return;
 
     RouteSheet.show(
       context,
@@ -147,7 +140,6 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
       busesOnRoute,
       currentLang: _currentLang,
       onOccupancyReported: (newOccupancy) {
-        // Send occupancy report payload to BE-2 API & BE-1 WebSockets
         if (busesOnRoute.isNotEmpty) {
           _socketService.reportOccupancy(busesOnRoute.first.busId, newOccupancy);
         }
@@ -160,9 +152,9 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
           }).toList();
         });
       },
-
     );
   }
+
 
   void _onBusTapped(Bus bus) {
     final route = _apiRoutes.firstWhereOrNull((r) => r.id == bus.routeId);
@@ -215,14 +207,26 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.transit_commuter_app',
+                userAgentPackageName: 'com.example.transport_app',
               ),
-              // Road Route Polylines Layer
-              if (_routePolylines.isNotEmpty)
-                PolylineLayer(polylines: _routePolylines),
-              // Bus Stops Marker Layer (API-backed)
+
+              // Road Route Polyline Layer (Renders active highlighted route)
+              if (_highlightedPolyline != null)
+                PolylineLayer(polylines: [_highlightedPolyline!]),
+
+              // Bus Stops Marker Layer (Displays stops for selected route or primary hubs)
               MarkerLayer(
-                markers: _apiStops.map((stop) {
+                markers: (_selectedRoute != null
+                        ? _selectedRoute!.stops.map((s) => BusStop(
+                              id: s.id,
+                              name: s.name,
+                              position: s.position,
+                              city: s.city,
+                              shelter: s.shelter,
+                            )).toList()
+                        : (_apiStops.length > 20 ? _apiStops.take(20).toList() : _apiStops))
+                    .map((stop) {
+
                   final hasShelter = stop.shelter == true;
                   return Marker(
                     point: stop.position,
@@ -255,7 +259,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                   );
                 }).toList(),
               ),
-              // Live Bus Position Markers Layer with Occupancy status
+              // Live Bus Position Markers Layer with Occupancy status & OnTap ETA Card
               MarkerLayer(
                 markers: filteredBuses.map((bus) {
                   return Marker(
@@ -274,11 +278,11 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                   );
                 }).toList(),
               ),
-
             ],
           ),
           SafeArea(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12),
@@ -294,51 +298,45 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                     onResultSelected: _onRouteSelected,
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _BusFinderField(
-                        query: _busQuery,
-                        onChanged: (q) => setState(() => _busQuery = q),
-                        count: filteredBuses.length,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _BusFinderField(
+                          query: _busQuery,
+                          onChanged: (q) => setState(() => _busQuery = q),
+                          count: filteredBuses.length,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    _SortRoutesButton(
-                      sortByStops: _sortByStops,
-                      onToggle: (v) {
-                        setState(() => _sortByStops = v);
-                        _applyRouteSort();
-                      },
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      _SortRoutesButton(
+                        sortByStops: _sortByStops,
+                        onToggle: (v) {
+                          setState(() => _sortByStops = v);
+                          _applyRouteSort();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
+                if (_selectedBus != null) ...[
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: _buildEtaOverlayCard(_selectedBus!),
+                  ),
+                ],
               ],
             ),
           ),
           Positioned(
             right: 12,
             bottom: _selectedBus != null ? 280 : 24,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton.extended(
-                  heroTag: 'admin_switch',
-                  backgroundColor: const Color(0xFF1E1F57),
-                  foregroundColor: Colors.white,
-                  icon: const Icon(Icons.admin_panel_settings_rounded, size: 20),
-                  label: const Text('Admin Portal', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/admin');
-                  },
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton.small(
-                  heroTag: 'recenter',
-                  onPressed: () => _mapController.move(_initialCenter, 13),
-                  child: const Icon(Icons.my_location),
-                ),
-              ],
+            child: FloatingActionButton.small(
+              heroTag: 'recenter',
+              onPressed: () => _mapController.move(_initialCenter, 13),
+              child: const Icon(Icons.my_location),
             ),
           ),
           if (_selectedBus != null)
@@ -356,6 +354,76 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
       ),
     );
   }
+
+  Widget _buildEtaOverlayCard(Bus bus) {
+    final targetPos = _apiStops.isNotEmpty ? _apiStops.first.position : _initialCenter;
+    final etaMins = EtaService.calculateEtaMinutes(
+      busPos: bus.position,
+      targetPos: targetPos,
+      speedKmh: bus.speedKmh,
+    );
+    final trafficData = EtaService.getAdjustedSpeed(baseSpeedKmh: bus.speedKmh);
+    final isCongested = trafficData['isCongested'] as bool;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1F57),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black38,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isCongested ? Colors.orange.shade800 : Colors.indigo.shade600,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.bolt_rounded, color: Colors.amberAccent, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '⚡ Live Dynamic ETA: $etaMins mins',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isCongested
+                      ? '🚗 Peak Traffic (+30% Delay) • ${bus.speedKmh.toStringAsFixed(0)} km/h'
+                      : '🟢 Normal Flow • ${bus.speedKmh.toStringAsFixed(0)} km/h',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 20),
+            onPressed: () => setState(() => _selectedBus = null),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 class _BusFinderField extends StatelessWidget {

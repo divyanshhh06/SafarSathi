@@ -63,16 +63,64 @@ class BusInfoCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 10),
+            Row(
+              children: [
+                Text(
+                  bus.busId,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E1F57),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: bus.isDwelling ? Colors.amber.shade100 : Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    bus.direction == 'returning' ? '↩️ Returning' : '➔ Forward',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: bus.isDwelling ? Colors.amber.shade900 : Colors.indigo.shade900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (bus.isDwelling)
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade700,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.pause_circle_filled_rounded, color: Colors.white, size: 16),
+                    SizedBox(width: 6),
+                    Text(
+                      'Dwelling at station (Passenger Boarding - 30s)',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
             Row(
               children: [
                 const Icon(Icons.speed_rounded, color: Colors.indigo, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  '${speedKmh.toStringAsFixed(1)} km/h',
-                  style: const TextStyle(
+                  bus.isDwelling ? '0.0 km/h (Stopped)' : '${speedKmh.toStringAsFixed(1)} km/h',
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: bus.isDwelling ? Colors.orange.shade800 : Colors.black,
                   ),
                 ),
               ],

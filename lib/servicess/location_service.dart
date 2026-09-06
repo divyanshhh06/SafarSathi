@@ -21,6 +21,7 @@ class LocationService {
 
   List<LatLng> _densePath = [];
   int _stepIndex = 0;
+  int _dwellTicksRemaining = 0;
 
   LocationService({SocketService? socketService})
       : _socketService = socketService ?? SocketService();
@@ -69,13 +70,28 @@ class LocationService {
 
     _densePath = _generateDensePath(baseWaypoints, pointsPerSegment: 15);
     _stepIndex = 0;
+    _dwellTicksRemaining = 0;
 
     Future<void> emitTick() async {
       if (_densePath.isEmpty) return;
 
+      final bool isStopStation = (_stepIndex > 0 && _stepIndex % 15 == 0);
+      if (isStopStation && _dwellTicksRemaining == 0) {
+        _dwellTicksRemaining = 15; // 15 ticks * 2s = 30 seconds dwelling at stop
+      }
+
+      double speed = 0.0;
+
+      if (_dwellTicksRemaining > 0) {
+        speed = 0.0;
+        _dwellTicksRemaining--;
+      } else {
+        speed = 45.0 + (_stepIndex % 12);
+        _stepIndex = (_stepIndex + 1) % _densePath.length;
+      }
+
       final currentPt = _densePath[_stepIndex % _densePath.length];
       final nextPt = _densePath[(_stepIndex + 1) % _densePath.length];
-      _stepIndex = (_stepIndex + 1) % _densePath.length;
 
       final lat = currentPt.latitude;
       final lng = currentPt.longitude;
@@ -84,9 +100,8 @@ class LocationService {
       double bearing = distance.bearing(currentPt, nextPt);
       if (bearing < 0) bearing += 360;
 
-      final speed = 45.0 + (_stepIndex % 12); // Smooth 45-57 km/h driving speed
-
-      final ping = LocationPing(
+      // 1. Emit Primary Forward Bus (e.g. BUS_4B_A)
+      final pingA = LocationPing(
         busId: busId,
         routeId: routeId,
         lat: lat,
@@ -98,7 +113,33 @@ class LocationService {
 
       try {
         final box = Hive.box<LocationPing>(_boxName);
-        await box.add(ping);
+        await box.add(pingA);
+      } catch (_) {}
+
+      // 2. Emit Secondary Returning Bus (e.g. BUS_4B_B) in reverse direction
+      final reverseIdx = (_densePath.length - 1 - _stepIndex).clamp(0, _densePath.length - 1);
+      final returnPt = _densePath[reverseIdx];
+      final returnNextPt = _densePath[(reverseIdx > 0 ? reverseIdx - 1 : 0)];
+      double returnBearing = distance.bearing(returnPt, returnNextPt);
+      if (returnBearing < 0) returnBearing += 360;
+
+      final returnBusId = busId.contains('_A')
+          ? busId.replaceAll('_A', '_B')
+          : '${busId}_RET';
+
+      final pingB = LocationPing(
+        busId: returnBusId,
+        routeId: routeId,
+        lat: returnPt.latitude,
+        lng: returnPt.longitude,
+        speed: (speed == 0.0) ? 0.0 : (48.0 + (_stepIndex % 10)),
+        bearing: returnBearing,
+        timestamp: DateTime.now(),
+      );
+
+      try {
+        final box = Hive.box<LocationPing>(_boxName);
+        await box.add(pingB);
       } catch (_) {}
 
       await flushQueue();

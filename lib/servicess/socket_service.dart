@@ -95,7 +95,7 @@ class SocketService {
       }
 
       // Listen for compressed live position stream event 'u' from server
-      // Payload format: [lat, lng, busId, speed, routeId]
+      // Payload format: [lat, lng, busId, speed, routeId, direction?]
       _socket!.on('u', (data) {
         try {
           if (data is List && data.length >= 5) {
@@ -105,12 +105,29 @@ class SocketService {
             final speed = (data[3] as num).toDouble();
             final rId = data[4].toString();
 
+            String direction = 'forward';
+            if (data.length >= 6 && data[5] != null) {
+              final dStr = data[5].toString().toLowerCase();
+              if (dStr.contains('return') || dStr == 'b' || dStr == 'returning') {
+                direction = 'returning';
+              }
+            } else if (busId.endsWith('_B') || busId.contains('return')) {
+              direction = 'returning';
+            }
+
+            final isDwelling = (speed == 0.0);
             final existing = _busMap[busId];
-            final bus = Bus(
+
+            final bus = BusState(
               busId: busId,
               routeId: rId,
               position: LatLng(lat, lng),
-              speedKmh: speed,
+              speed: speed,
+              bearing: existing?.bearing ?? 0.0,
+              isDwelling: isDwelling,
+              direction: direction,
+              currentStopName: existing?.currentStopName,
+              lastUpdated: DateTime.now(),
               occupancy: existing?.occupancy ?? OccupancyLevel.seatsAvailable,
             );
 
@@ -215,12 +232,13 @@ class SocketService {
     final bearing = (pingJson['bearing'] as num?)?.toDouble() ?? 0.0;
 
     final existing = _busMap[busId];
-    _busMap[busId] = Bus(
+    _busMap[busId] = BusState(
       busId: busId,
       routeId: routeId,
       position: LatLng(lat, lng),
-      speedKmh: speed,
+      speed: speed,
       bearing: bearing,
+      isDwelling: (speed == 0.0),
       occupancy: existing?.occupancy ?? OccupancyLevel.seatsAvailable,
     );
 

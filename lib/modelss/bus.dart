@@ -37,56 +37,84 @@ extension OccupancyExtension on OccupancyLevel {
   }
 }
 
-/// Represents a single live bus position update.
-class Bus {
+/// Represents a single live bus fleet position update.
+class BusState {
   final String busId;
   final String routeId;
   final LatLng position;
-  final double speedKmh;
+  final double speed;
   final double bearing; // degrees, 0 = north
+  final DateTime lastUpdated;
+  final bool isDwelling; // true when speed == 0 at a stop
+  final String? currentStopName;
+  final String direction; // 'forward' (to terminus) or 'returning' (to start)
   final OccupancyLevel occupancy;
 
-  Bus({
+  double get speedKmh => speed;
+
+  BusState({
     required this.busId,
     required this.routeId,
     required this.position,
-    required this.speedKmh,
+    required this.speed,
     this.bearing = 0,
+    DateTime? lastUpdated,
+    bool? isDwelling,
+    this.currentStopName,
+    this.direction = 'forward',
     this.occupancy = OccupancyLevel.seatsAvailable,
-  });
+  })  : lastUpdated = lastUpdated ?? DateTime.now(),
+        isDwelling = isDwelling ?? (speed == 0.0);
 
-  factory Bus.fromJson(Map<String, dynamic> json) {
+  factory BusState.fromJson(Map<String, dynamic> json) {
     OccupancyLevel parsedOccupancy = OccupancyLevel.seatsAvailable;
     final occString = json['occupancy'] as String?;
     if (occString == 'standingOnly') parsedOccupancy = OccupancyLevel.standingOnly;
     if (occString == 'packed') parsedOccupancy = OccupancyLevel.packed;
 
-    return Bus(
-      busId: json['busId'] as String,
-      routeId: json['routeId'] as String,
+    final spd = (json['speed'] as num?)?.toDouble() ?? 0.0;
+
+    return BusState(
+      busId: json['busId'] as String? ?? 'BUS_UNKNOWN',
+      routeId: json['routeId'] as String? ?? 'ROUTE_UNKNOWN',
       position: LatLng(
-        (json['lat'] as num).toDouble(),
-        (json['lng'] as num).toDouble(),
+        (json['lat'] as num?)?.toDouble() ?? 0.0,
+        (json['lng'] as num?)?.toDouble() ?? 0.0,
       ),
-      speedKmh: (json['speed'] as num).toDouble(),
-      bearing: (json['bearing'] as num?)?.toDouble() ?? 0,
+      speed: spd,
+      bearing: (json['bearing'] as num?)?.toDouble() ?? 0.0,
+      isDwelling: json['isDwelling'] as bool? ?? (spd == 0.0),
+      currentStopName: json['currentStopName'] as String?,
+      direction: json['direction'] as String? ?? 'forward',
       occupancy: parsedOccupancy,
     );
   }
 
-  Bus copyWith({
+  BusState copyWith({
     LatLng? position,
+    double? speed,
     double? speedKmh,
     double? bearing,
+    DateTime? lastUpdated,
+    bool? isDwelling,
+    String? currentStopName,
+    String? direction,
     OccupancyLevel? occupancy,
   }) {
-    return Bus(
+    final effectiveSpeed = speed ?? speedKmh ?? this.speed;
+    return BusState(
       busId: busId,
       routeId: routeId,
       position: position ?? this.position,
-      speedKmh: speedKmh ?? this.speedKmh,
+      speed: effectiveSpeed,
       bearing: bearing ?? this.bearing,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      isDwelling: isDwelling ?? (effectiveSpeed == 0.0),
+      currentStopName: currentStopName ?? this.currentStopName,
+      direction: direction ?? this.direction,
       occupancy: occupancy ?? this.occupancy,
     );
   }
 }
+
+typedef Bus = BusState;

@@ -128,11 +128,11 @@ class RouteSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        activeBus != null
-                            ? '🟢 Live Bus Active (${activeBus.speedKmh.toStringAsFixed(0)} km/h)'
+                        liveBuses.isNotEmpty
+                            ? '🟢 ${liveBuses.length} Active Bus${liveBuses.length > 1 ? 'es' : ''} in Fleet | ${liveBuses.any((b) => b.isDwelling) ? '⏸️ Dwell Station Active' : '⚡ Live Highway Stream'}'
                             : '⚡ Scheduled Route (Continuous Stream)',
                         style: TextStyle(
-                          color: activeBus != null ? const Color(0xFF4ADE80) : const Color(0xFF94A3B8),
+                          color: liveBuses.isNotEmpty ? const Color(0xFF4ADE80) : const Color(0xFF94A3B8),
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),

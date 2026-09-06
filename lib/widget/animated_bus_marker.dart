@@ -91,11 +91,11 @@ class _AnimatedBusMarkerState extends State<AnimatedBusMarker>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Speed Badge (High Contrast Dark Indigo)
+              // Speed / Dwell Status Badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1F57),
+                  color: widget.speedKmh == 0 ? const Color(0xFFD97706) : const Color(0xFF1E1F57),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
@@ -104,18 +104,25 @@ class _AnimatedBusMarkerState extends State<AnimatedBusMarker>
                       offset: Offset(0, 3),
                     ),
                   ],
-                  border: Border.all(color: Colors.amberAccent, width: 1.5),
+                  border: Border.all(
+                    color: widget.speedKmh == 0 ? Colors.white : Colors.amberAccent,
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.flash_on_rounded, size: 10, color: Colors.amberAccent),
+                    Icon(
+                      widget.speedKmh == 0 ? Icons.pause_circle_filled_rounded : Icons.flash_on_rounded,
+                      size: 10,
+                      color: widget.speedKmh == 0 ? Colors.white : Colors.amberAccent,
+                    ),
                     const SizedBox(width: 2),
                     Text(
-                      '${widget.speedKmh.toStringAsFixed(0)} km/h',
+                      widget.speedKmh == 0 ? 'DWELLING' : '${widget.speedKmh.toStringAsFixed(0)} km/h',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

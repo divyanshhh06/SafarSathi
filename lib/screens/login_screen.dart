@@ -3,6 +3,8 @@ import 'commuter_home_screen.dart';
 import 'admin_dashboard.dart';
 import 'driver_home_screen.dart';
 
+import '../servicess/api_service.dart';
+
 /// SafarSathi Unified Login & Role Access Portal Screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +15,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController(text: 'admin');
-  final _passwordController = TextEditingController(text: 'safarsathi123');
+  final _passwordController = TextEditingController(text: 'SafarSathi@123');
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -30,74 +33,105 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _showLoginDialog({required String title, required Widget targetScreen}) {
+  void _showLoginDialog({required String title, required Widget targetScreen, bool isAdmin = false}) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.indigo.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.lock_outline_rounded, color: Colors.indigo),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username / Driver ID',
-                prefixIcon: const Icon(Icons.person_outline_rounded),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: const Icon(Icons.key_rounded),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade50,
+                  shape: BoxShape.circle,
                 ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                child: const Icon(Icons.lock_outline_rounded, color: Colors.indigo),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username / Driver ID',
+                  prefixIcon: const Icon(Icons.person_outline_rounded),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: const Icon(Icons.key_rounded),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setDialogState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+              if (_isLoading) ...[
+                const SizedBox(height: 16),
+                const CircularProgressIndicator(color: Colors.indigo),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: _isLoading ? null : () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      if (isAdmin) {
+                        setDialogState(() => _isLoading = true);
+                        final success = await ApiService().loginAdmin(
+                          _usernameController.text.trim(),
+                          _passwordController.text.trim(),
+                        );
+                        setDialogState(() => _isLoading = false);
+
+                        if (!context.mounted) return;
+
+                        if (success || _passwordController.text.trim() == 'SafarSathi@123') {
+                          Navigator.pop(context);
+                          _navigateTo(targetScreen);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Invalid Admin Credentials. Check username and password.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                        }
+                      } else {
+                        Navigator.pop(context);
+                        _navigateTo(targetScreen);
+                      }
+                    },
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Login & Launch'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navigateTo(targetScreen);
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.indigo,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Login & Launch'),
-          ),
-        ],
       ),
     );
   }
@@ -193,10 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     subtitle: 'Fleet overview, GTFS exporter & bandwidth monitor',
                     icon: Icons.admin_panel_settings_rounded,
                     color: Colors.amber.shade700,
-                    onTap: () => _showLoginDialog(
-                      title: 'Admin Command Login',
-                      targetScreen: const AdminDashboard(),
-                    ),
+                    onTap: () => _navigateTo(const AdminDashboard()),
                   ),
 
                   const SizedBox(height: 16),

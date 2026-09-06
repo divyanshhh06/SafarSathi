@@ -16,7 +16,14 @@ import '../widget/animated_bus_marker.dart';
 import '../widget/bus_info_card.dart';
 
 class CommuterHomeScreen extends StatefulWidget {
-  const CommuterHomeScreen({super.key});
+  final String? initialRouteId;
+  final String? initialBusId;
+
+  const CommuterHomeScreen({
+    super.key,
+    this.initialRouteId,
+    this.initialBusId,
+  });
 
   @override
   State<CommuterHomeScreen> createState() => _CommuterHomeScreenState();
@@ -34,6 +41,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   Bus? _selectedBus;
   BusRoute? _selectedRoute;
   Polyline? _highlightedPolyline;
+  bool _hasInitialCentered = false;
 
   String _currentLang = 'en'; // 'en', 'pa', 'hi'
   String _busQuery = '';
@@ -47,11 +55,20 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     super.initState();
     _loadApiStops();
     _loadApiRoutes();
-    _socketService.connect().listen((buses) {
+    _socketService.connect(routeId: widget.initialRouteId).listen((buses) {
       if (mounted) {
         setState(() {
           _liveBuses = buses;
         });
+
+        if (!_hasInitialCentered && buses.isNotEmpty) {
+          final targetBus = widget.initialBusId != null
+              ? buses.firstWhereOrNull((b) => b.busId == widget.initialBusId) ?? buses.first
+              : buses.first;
+          _hasInitialCentered = true;
+          _selectedBus = targetBus;
+          _mapController.move(targetBus.position, 14);
+        }
       }
     });
   }
@@ -64,6 +81,12 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
           _apiRoutes = routes;
           _applyRouteSort();
         });
+        if (widget.initialRouteId != null) {
+          final match = routes.firstWhereOrNull((r) => r.id == widget.initialRouteId);
+          if (match != null) {
+            _onRouteSelected(match);
+          }
+        }
       }
     } catch (e) {
       // ignore: avoid_print
@@ -114,7 +137,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     final polyline = Polyline(
       points: roadPoints.isNotEmpty ? roadPoints : route.path,
       strokeWidth: 6.0,
-      color: const Color(0xFF2E3192),
+      color: const Color(0xFFF97316), // Vivid Coral Orange matching Web Portal
     );
 
     final targetCenter = route.stops.isNotEmpty
@@ -183,6 +206,65 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     );
   }
 
+  void _showSmsHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.indigo.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.sms_rounded, color: Color(0xFF2E3192)),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Offline SMS Inquiry', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'No mobile internet on rural highway routes? Get instant bus schedules and status via SMS!',
+              style: TextStyle(fontSize: 13, color: Colors.black87),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF0F4FF),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text('💬 SMS Format:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2E3192))),
+                  SizedBox(height: 4),
+                  Text('BUS <route_number>', style: TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 14)),
+                  SizedBox(height: 4),
+                  Text('Example: Send "BUS 4B" or "BUS 101"', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredBuses = _busQuery.isEmpty
@@ -227,32 +309,24 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                         : (_apiStops.length > 20 ? _apiStops.take(20).toList() : _apiStops))
                     .map((stop) {
 
-                  final hasShelter = stop.shelter == true;
                   return Marker(
                     point: stop.position,
-                    width: 38,
-                    height: 38,
+                    width: 32,
+                    height: 32,
                     child: Tooltip(
                       message: '${stop.name}, ${stop.city}',
                       child: Container(
                         decoration: BoxDecoration(
-                          color: hasShelter
-                              ? const Color(0xFF2E3192)
-                              : Colors.deepOrangeAccent,
+                          color: const Color(0xFF38BDF8), // Vivid Cyan
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2.5),
+                          border: Border.all(color: const Color(0xFF0F172A), width: 2.5),
                           boxShadow: const [
                             BoxShadow(
-                              color: Colors.black26,
+                              color: Colors.black38,
                               blurRadius: 6,
                               offset: Offset(0, 3),
                             ),
                           ],
-                        ),
-                        child: const Icon(
-                          Icons.directions_bus_outlined,
-                          size: 20,
-                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -264,8 +338,8 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
                 markers: filteredBuses.map((bus) {
                   return Marker(
                     point: bus.position,
-                    width: 65,
-                    height: 65,
+                    width: 90,
+                    height: 90,
                     child: GestureDetector(
                       onTap: () => _onBusTapped(bus),
                       child: AnimatedBusMarker(
@@ -333,10 +407,36 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
           Positioned(
             right: 12,
             bottom: _selectedBus != null ? 280 : 24,
-            child: FloatingActionButton.small(
-              heroTag: 'recenter',
-              onPressed: () => _mapController.move(_initialCenter, 13),
-              child: const Icon(Icons.my_location),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_liveBuses.isNotEmpty) ...[
+                  FloatingActionButton.small(
+                    heroTag: 'focus_bus',
+                    backgroundColor: Colors.green.shade700,
+                    foregroundColor: Colors.white,
+                    tooltip: 'Focus Active Bus',
+                    onPressed: () {
+                      _mapController.move(_liveBuses.first.position, 14);
+                    },
+                    child: const Icon(Icons.directions_bus_rounded),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                FloatingActionButton.small(
+                  heroTag: 'sms_help',
+                  backgroundColor: const Color(0xFF2E3192),
+                  foregroundColor: Colors.white,
+                  onPressed: _showSmsHelpDialog,
+                  child: const Icon(Icons.sms_rounded),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton.small(
+                  heroTag: 'recenter',
+                  onPressed: () => _mapController.move(_initialCenter, 13),
+                  child: const Icon(Icons.my_location),
+                ),
+              ],
             ),
           ),
           if (_selectedBus != null)

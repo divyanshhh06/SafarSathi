@@ -19,12 +19,16 @@ class SocketService {
   SocketService._internal();
 
   /// Toggle to switch between local laptop backend and live cloud backend
-  static const bool useLocalBackend = false;
+  static const bool useLocalBackend = true;
+
+  /// Your laptop's local Wi-Fi IP address for testing on physical mobile phones.
+  static String physicalDeviceHostIp = '10.115.46.238';
 
   static String get backendUrl {
     if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com';
     if (kIsWeb) return 'http://localhost:3000';
     if (defaultTargetPlatform == TargetPlatform.android) {
+      // 10.0.2.2 connects Android Emulator to host machine's localhost:3000
       return 'http://10.0.2.2:3000';
     }
     return 'http://localhost:3000';
@@ -52,11 +56,14 @@ class SocketService {
       StreamController<List<Bus>>.broadcast();
 
   final Map<String, Bus> _busMap = {};
-
+  String? _currentRouteId;
 
   Stream<List<Bus>> connect({String? routeId}) {
-    if (_socket == null) {
+    if (routeId != null) {
+      _currentRouteId = routeId;
+    }
 
+    if (_socket == null) {
       _socket = io.io(
         backendUrl,
         io.OptionBuilder()
@@ -70,10 +77,18 @@ class SocketService {
       _socket!.onConnect((_) {
         // ignore: avoid_print
         print('⚡ Connected to SafarSathi BE-1 tracking server ($backendUrl)');
-        if (routeId != null) {
-          joinRoute(routeId);
+        if (_currentRouteId != null) {
+          _socket!.emit('join_route', _currentRouteId);
         }
       });
+
+      if (_busMap.isNotEmpty && !_controller.isClosed) {
+        Future.microtask(() {
+          if (!_controller.isClosed) {
+            _controller.add(_busMap.values.toList());
+          }
+        });
+      }
 
       // Listen for compressed live position stream event 'u' from server
       // Payload format: [lat, lng, busId, speed, routeId]
@@ -137,6 +152,7 @@ class SocketService {
 
   /// Commuter joins a specific route channel on BE-1
   void joinRoute(String routeId) {
+    _currentRouteId = routeId;
     if (_socket != null && _socket!.connected) {
       _socket!.emit('join_route', routeId);
     }
@@ -189,7 +205,14 @@ class SocketService {
   Future<bool> reportDriverLocation(Map<String, dynamic> pingJson) async {
     if (_socket == null || _socket?.connected != true) {
       connect();
-      return false;
+      int waitMs = 0;
+      while ((_socket == null || _socket?.connected != true) && waitMs < 2000) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        waitMs += 100;
+      }
+      if (_socket == null || _socket?.connected != true) {
+        return false;
+      }
     }
 
     try {

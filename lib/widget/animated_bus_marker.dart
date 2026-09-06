@@ -74,46 +74,89 @@ class _AnimatedBusMarkerState extends State<AnimatedBusMarker>
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = widget.occupancy == OccupancyLevel.seatsAvailable
+        ? const Color(0xFF00E676) // Vivid Green
+        : (widget.occupancy == OccupancyLevel.standingOnly
+            ? const Color(0xFFFF9100) // Vivid Amber
+            : const Color(0xFFFF1744)); // Vivid Red
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         _currentPosition = _tween.evaluate(_controller);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '${widget.speedKmh.toStringAsFixed(0)} km/h',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+        return SizedBox(
+          width: 90,
+          height: 90,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Speed Badge (High Contrast Dark Indigo)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1F57),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black45,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.amberAccent, width: 1.5),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.flash_on_rounded, size: 10, color: Colors.amberAccent),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${widget.speedKmh.toStringAsFixed(0)} km/h',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: widget.occupancy.color.withValues(alpha: 0.25),
-                shape: BoxShape.circle,
-                border: Border.all(color: widget.occupancy.color, width: 2),
-              ),
-              child: Transform.rotate(
-                angle: widget.bearing * 3.1415926535 / 180,
-                child: Icon(
-                  Icons.directions_bus_rounded,
-                  color: widget.occupancy.color,
-                  size: 24,
+              const SizedBox(height: 4),
+
+              // Glowing Bus Icon Pin with Radar Ring
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: statusColor.withValues(alpha: 0.6),
+                      blurRadius: 14,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF1E1F57), width: 2.5),
+                  ),
+                  child: Transform.rotate(
+                    angle: widget.bearing * 3.1415926535 / 180,
+                    child: const Icon(
+                      Icons.directions_bus_filled_rounded,
+                      color: Color(0xFF1E1F57),
+                      size: 26,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

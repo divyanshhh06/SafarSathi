@@ -6,9 +6,13 @@ import '../modelss/bus.dart';
 import '../modelss/bus_route.dart';
 import '../modelss/stop.dart';
 
+/// Pure Backend API Service — strictly fetches live routes, stops, and fleet telemetry from the backend.
 class ApiService {
   /// Toggle to switch between local laptop backend and live cloud backend
-  static const bool useLocalBackend = false;
+  static const bool useLocalBackend = true;
+
+  /// Your laptop's local Wi-Fi IP address for testing on physical mobile phones.
+  static String physicalDeviceHostIp = '10.115.46.238';
 
   static String get baseUrl {
     if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com/api';
@@ -19,11 +23,38 @@ class ApiService {
     return 'http://localhost:3000/api';
   }
 
-
-
   final http.Client _client;
+  static String? _authToken;
 
   ApiService({http.Client? client}) : _client = client ?? http.Client();
+
+  /// Authenticate admin user against BE-2 POST /api/admin/login
+  Future<bool> loginAdmin(String username, String password) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/admin/login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        if (data.containsKey('token')) {
+          _authToken = data['token'] as String;
+          return true;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  static String? get authToken => _authToken;
 
   // ---------------------------------------------------------------------------
   // BUSES
@@ -89,62 +120,23 @@ class ApiService {
   }
 
   // ---------------------------------------------------------------------------
-  // ROUTES
+  // ROUTES — Strictly fetched live from Backend GET /api/routes
   // ---------------------------------------------------------------------------
 
   Future<List<BusRoute>> getRoutes() async {
-    try {
-      final response = await _client.get(
-        Uri.parse('$baseUrl/routes'),
-        headers: _headers,
-      );
+    final response = await _client.get(
+      Uri.parse('$baseUrl/routes'),
+      headers: _headers,
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (data.isNotEmpty) {
-          return data
-              .map((json) => BusRoute.fromJson(json as Map<String, dynamic>))
-              .toList();
-        }
-      }
-    } catch (_) {}
+    _checkResponse(response);
 
-    // Fallback route synthesis directly from live GET /stops API
-    try {
-      final stops = await getStops();
-      if (stops.isNotEmpty) {
-        final Map<String, List<BusStop>> districtMap = {};
-        for (final stop in stops) {
-          final district = stop.city.isNotEmpty ? stop.city : 'Punjab';
-          districtMap.putIfAbsent(district, () => []).add(stop);
-        }
+    final List<dynamic> data = jsonDecode(response.body);
 
-        final List<BusRoute> synthesizedRoutes = [];
-        districtMap.forEach((district, dStops) {
-          synthesizedRoutes.add(
-            BusRoute(
-              id: 'route-${district.toLowerCase().replaceAll(' ', '-')}',
-              name: '$district Intercity Line',
-              stops: dStops
-                  .map((s) => RouteStop(
-                        id: s.id,
-                        name: s.name,
-                        city: s.city,
-                        position: s.position,
-                      ))
-                  .toList(),
-              path: dStops.map((s) => s.position).toList(),
-            ),
-          );
-        });
-
-        return synthesizedRoutes;
-      }
-    } catch (_) {}
-
-    return [];
+    return data
+        .map((json) => BusRoute.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
-
 
   Future<BusRoute> getRoute(String routeId) async {
     final response = await _client.get(
@@ -194,7 +186,7 @@ class ApiService {
   }
 
   // ---------------------------------------------------------------------------
-  // STOPS
+  // STOPS — Strictly fetched live from Backend GET /api/stops
   // ---------------------------------------------------------------------------
 
   Future<List<BusStop>> getStops() async {
@@ -296,12 +288,81 @@ class ApiService {
   }
 
   // ---------------------------------------------------------------------------
+  // DRIVERS
+  // ---------------------------------------------------------------------------
+
+  Future<List<dynamic>> getDrivers() async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/drivers'),
+      headers: _headers,
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  Future<dynamic> createDriver(Map<String, dynamic> data) async {
+    final response = await _client.post(
+      Uri.parse('$baseUrl/drivers'),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body);
+  }
+
+  // ---------------------------------------------------------------------------
+  // SCHEDULES
+  // ---------------------------------------------------------------------------
+
+  Future<List<dynamic>> getSchedules() async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/schedules'),
+      headers: _headers,
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  Future<dynamic> createSchedule(Map<String, dynamic> data) async {
+    final response = await _client.post(
+      Uri.parse('$baseUrl/schedules'),
+      headers: _headers,
+      body: jsonEncode(data),
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body);
+  }
+
+  // ---------------------------------------------------------------------------
+  // GTFS EXPORTS
+  // ---------------------------------------------------------------------------
+
+  Future<List<dynamic>> getGtfsStops() async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/gtfs/stops'),
+      headers: _headers,
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  Future<List<dynamic>> getGtfsRoutes() async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/gtfs/routes'),
+      headers: _headers,
+    );
+    _checkResponse(response);
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  // ---------------------------------------------------------------------------
   // HELPERS
   // ---------------------------------------------------------------------------
 
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    if (_authToken != null) 'Authorization': 'Bearer $_authToken',
   };
 
   void _checkResponse(http.Response response) {
@@ -333,4 +394,3 @@ class ApiException implements Exception {
     return 'ApiException ($statusCode): $message';
   }
 }
-

@@ -8,6 +8,8 @@ import '../servicess/location_service.dart';
 import '../servicess/socket_service.dart';
 import '../servicess/api_service.dart';
 
+import 'commuter_home_screen.dart';
+
 /// FE-3: Driver Module home screen.
 ///
 /// Big-touch-target UI for a driver to start/end a trip and report issues.
@@ -45,55 +47,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   Future<void> _loadRoutes() async {
     try {
       final routes = await _apiService.getRoutes();
-      if (mounted) {
+      if (mounted && routes.isNotEmpty) {
         setState(() {
-          _routes = routes.isNotEmpty ? routes : _generateFallbackPunjabRoutes();
-          if (_selectedRoute == null && _routes.isNotEmpty) {
-            _selectedRoute = _routes.first;
-          }
+          _routes = routes;
+          _selectedRoute = routes.first;
         });
       }
       _restoreState();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _routes = _generateFallbackPunjabRoutes();
-          if (_selectedRoute == null && _routes.isNotEmpty) {
-            _selectedRoute = _routes.first;
-          }
-        });
-      }
       _restoreState();
     }
-  }
-
-  List<BusRoute> _generateFallbackPunjabRoutes() {
-    return [
-      const BusRoute(
-        id: 'route-moga-ludhiana',
-        name: 'Moga - Ludhiana Express (GT Road)',
-        stops: [],
-        path: [LatLng(30.8119303, 75.3356210), LatLng(30.900965, 75.8572758)],
-      ),
-      const BusRoute(
-        id: 'route-ludhiana-jalandhar',
-        name: 'Ludhiana - Jalandhar Intercity (NH-44)',
-        stops: [],
-        path: [LatLng(30.900965, 75.8572758), LatLng(31.326015, 75.5761829)],
-      ),
-      const BusRoute(
-        id: 'route-jalandhar-amritsar',
-        name: 'Jalandhar - Amritsar Superfast',
-        stops: [],
-        path: [LatLng(31.326015, 75.5761829), LatLng(31.6339793, 74.8722642)],
-      ),
-      const BusRoute(
-        id: 'route-bathinda-patiala',
-        name: 'Bathinda - Patiala Highway Line',
-        stops: [],
-        path: [LatLng(30.210994, 74.9454745), LatLng(30.3397809, 76.3868797)],
-      ),
-    ];
   }
 
   void _showAddRouteDialog() {
@@ -201,6 +164,26 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       _isTripActive = true;
       _busId = busId;
     });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('⚡ Trip Started! Switching to Live Commuter Tracking Map...'),
+          backgroundColor: Colors.green.shade700,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CommuterHomeScreen(
+            initialRouteId: _selectedRoute!.id,
+            initialBusId: busId,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _endTrip() async {

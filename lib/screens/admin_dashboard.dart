@@ -28,6 +28,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   int _selectedTabIndex = 0;
   List<Bus> _liveBuses = [];
+  List<Bus> _persistentBuses = [];
+  bool _isLoadingBuses = false;
   List<Polyline> _routePolylines = [];
   List<BusStop> _apiStops = [];
   List<District> _districts = [];
@@ -35,7 +37,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _isLoadingDistricts = false;
   String? _expandedDistrictSlug;
   List<BusRoute> _apiRoutes = [];
-
 
   // Initial Center: Moga, Punjab Bus Stand
   static const LatLng _initialCenter = LatLng(30.8119303, 75.3356210);
@@ -46,14 +47,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _loadRoadPolylines();
     _loadApiStops();
     _loadApiRoutes();
+    _loadPersistentBuses();
     _socketService.connect().listen((buses) {
       if (mounted) {
         setState(() {
           _liveBuses = buses;
         });
-
       }
     });
+  }
+
+  Future<void> _loadPersistentBuses() async {
+    setState(() => _isLoadingBuses = true);
+    try {
+      final buses = await _apiService.getBuses();
+      if (mounted) {
+        setState(() {
+          _persistentBuses = buses;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to load persistent buses: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingBuses = false);
+      }
+    }
   }
 
   Future<void> _loadApiRoutes() async {
@@ -216,6 +236,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   index: _selectedTabIndex,
                   children: [
                     _buildFleetMapTab(isMobile: true),
+                    _buildPersistentBusesTab(),
                     _buildRoutesTab(),
                     _buildAnalyticsTab(),
                   ],
@@ -241,6 +262,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           label: Text('Fleet Map'),
                         ),
                         NavigationRailDestination(
+                          icon: Icon(Icons.directions_bus_rounded),
+                          label: Text('Fleet Fleet Buses'),
+                        ),
+                        NavigationRailDestination(
                           icon: Icon(Icons.alt_route_rounded),
                           label: Text('Routes & Stops'),
                         ),
@@ -256,6 +281,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         index: _selectedTabIndex,
                         children: [
                           _buildFleetMapTab(isMobile: false),
+                          _buildPersistentBusesTab(),
                           _buildRoutesTab(),
                           _buildAnalyticsTab(),
                         ],
@@ -273,6 +299,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     NavigationDestination(
                       icon: Icon(Icons.map_rounded),
                       label: 'Fleet Map',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.directions_bus_rounded),
+                      label: 'Fleet Fleet Buses',
                     ),
                     NavigationDestination(
                       icon: Icon(Icons.alt_route_rounded),
@@ -373,8 +403,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     markers: _liveBuses.map((bus) {
                       return Marker(
                         point: bus.position,
-                        width: 65,
-                        height: 65,
+                        width: 90,
+                        height: 90,
                         child: AnimatedBusMarker(
                           target: bus.position,
                           bearing: bus.bearing,
@@ -599,7 +629,209 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  void _showGTFSExportDialog() {
+  // TAB: Persistent Fleet Buses Management
+  Widget _buildPersistentBusesTab() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Colors.indigo.shade50,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Fleet Fleet Buses (MongoDB Persistent)',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.indigo),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Register and manage persistent transit buses via BE-2 API',
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: _showRegisterBusDialog,
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Register Bus'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _isLoadingBuses
+              ? const Center(child: CircularProgressIndicator())
+              : _persistentBuses.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.directions_bus_outlined, size: 54, color: Colors.grey.shade400),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'No persistent buses registered in MongoDB yet.',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: _showRegisterBusDialog,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Register First Bus'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: _persistentBuses.length,
+                      itemBuilder: (context, index) {
+                        final bus = _persistentBuses[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.indigo.shade100,
+                              child: const Icon(Icons.directions_bus_rounded, color: Colors.indigo),
+                            ),
+                            title: Text(
+                              bus.busId,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                            ),
+                            subtitle: Text('Route: ${bus.routeId} • Status: ${bus.occupancy}'),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                              onPressed: () async {
+                                try {
+                                  await _apiService.deleteBus(bus.busId);
+                                  _loadPersistentBuses();
+                                } catch (_) {}
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
+
+  void _showRegisterBusDialog() {
+    final numberController = TextEditingController();
+    String status = 'on_route';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.directions_bus_rounded, color: Colors.indigo),
+            SizedBox(width: 10),
+            Text('Register Persistent Bus'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: numberController,
+              decoration: InputDecoration(
+                labelText: 'Bus Number (e.g. PB-04-SS-101)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: status,
+              decoration: InputDecoration(
+                labelText: 'Operating Status',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'on_route', child: Text('On Route')),
+                DropdownMenuItem(value: 'idle', child: Text('Idle / Standby')),
+                DropdownMenuItem(value: 'breakdown', child: Text('Maintenance / Breakdown')),
+              ],
+              onChanged: (val) {
+                if (val != null) status = val;
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final busNumber = numberController.text.trim();
+              if (busNumber.isNotEmpty) {
+                try {
+                  await _apiService.createBus({
+                    'busNumber': busNumber,
+                    'status': status,
+                  });
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    _loadPersistentBuses();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Bus $busNumber registered successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to register bus: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Register'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showGTFSExportDialog() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(color: Colors.indigo),
+            SizedBox(width: 16),
+            Text('Generating GTFS Feed...'),
+          ],
+        ),
+      ),
+    );
+
+    int gtfsStopsCount = 0;
+    int gtfsRoutesCount = 0;
+    try {
+      final stops = await _apiService.getGtfsStops();
+      final routes = await _apiService.getGtfsRoutes();
+      gtfsStopsCount = stops.length;
+      gtfsRoutesCount = routes.length;
+    } catch (_) {}
+
+    if (!mounted) return;
+    Navigator.pop(context); // Dismiss progress dialog
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -611,9 +843,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Text('GTFS Feed Exported', style: TextStyle(fontSize: 16)),
           ],
         ),
-        content: const Text(
-          'Standardized GTFS ZIP archive containing routes.txt, stops.txt, and trips.txt for Moga, Punjab transit has been generated successfully.',
-          style: TextStyle(fontSize: 13),
+        content: Text(
+          'Standardized GTFS feed generated successfully via BE-2 API!\n\n'
+          '• GTFS Stops Exported: $gtfsStopsCount\n'
+          '• GTFS Routes Exported: $gtfsRoutesCount\n\n'
+          'Archive includes routes.txt, stops.txt, and trips.txt formatted to GTFS specifications.',
+          style: const TextStyle(fontSize: 13),
         ),
         actions: [
           TextButton(

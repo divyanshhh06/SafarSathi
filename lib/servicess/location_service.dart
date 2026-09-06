@@ -1,15 +1,16 @@
 import 'dart:async';
-import 'package:geolocator/geolocator.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import '../modelss/location_ping.dart';
 import 'socket_service.dart';
 
-/// Robust GPS Location Service for Driver Telemetry
-/// Supports real device GPS with automatic route simulation fallback for emulators/desktop.
+/// Pure Route-Driven Telemetry Service for Driver Trips.
+/// Operates without physical device GPS permissions — when the driver selects a route
+/// and starts a trip, it automatically drives the bus along the selected route geometry,
+/// streaming location pings, computing ETA, and reporting live telemetry.
 class LocationService {
-  static const _pingInterval = Duration(seconds: 5);
+  static const _pingInterval = Duration(seconds: 2);
   static const _boxName = 'trip_pings';
 
   final SocketService _socketService;
@@ -17,27 +18,30 @@ class LocationService {
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _flushInProgress = false;
 
-  int _simIndex = 0;
+  List<LatLng> _densePath = [];
+  int _stepIndex = 0;
 
   LocationService({SocketService? socketService})
       : _socketService = socketService ?? SocketService();
 
-  Future<bool> _ensurePermissions() async {
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
+  /// Generates a smooth, dense path of points between route waypoints for realistic driving animation.
+  List<LatLng> _generateDensePath(List<LatLng> waypoints, {int pointsPerSegment = 20}) {
+    if (waypoints.isEmpty) return [];
+    if (waypoints.length == 1) return waypoints;
 
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+    final List<LatLng> dense = [];
+    for (int i = 0; i < waypoints.length - 1; i++) {
+      final start = waypoints[i];
+      final end = waypoints[i + 1];
+      for (int step = 0; step < pointsPerSegment; step++) {
+        final t = step / pointsPerSegment;
+        final lat = start.latitude + (end.latitude - start.latitude) * t;
+        final lng = start.longitude + (end.longitude - start.longitude) * t;
+        dense.add(LatLng(lat, lng));
       }
-
-      if (permission == LocationPermission.deniedForever) return false;
-      if (!await Geolocator.isLocationServiceEnabled()) return false;
-
-      return permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always;
-    } catch (_) {
-      return false;
     }
+    dense.add(waypoints.last);
+    return dense;
   }
 
   Future<void> startTracking({
@@ -53,58 +57,33 @@ class LocationService {
       if (online) flushQueue();
     });
 
-    final hasPermission = await _ensurePermissions();
-
-    _simIndex = 0;
-    final List<LatLng> simWaypoints = (routePath != null && routePath.length >= 2)
+    final List<LatLng> baseWaypoints = (routePath != null && routePath.length >= 2)
         ? routePath
         : const [
-            LatLng(30.8119303, 75.3356210), // Moga
+            LatLng(30.8119303, 75.3356210), // Moga Bus Stand
             LatLng(30.8354, 75.4312),       // Ajitwal
             LatLng(30.7844, 75.4746),       // Jagraon
-            LatLng(30.900965, 75.8572758),  // Ludhiana
+            LatLng(30.900965, 75.8572758),  // Ludhiana Bus Stand
           ];
 
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(_pingInterval, (_) async {
-      double lat = 0.0;
-      double lng = 0.0;
-      double speed = 52.0;
-      double bearing = 85.0;
+    _densePath = _generateDensePath(baseWaypoints, pointsPerSegment: 25);
+    _stepIndex = 0;
 
-      bool readRealGpsSuccess = false;
+    Future<void> emitTick() async {
+      if (_densePath.isEmpty) return;
 
-      if (hasPermission) {
-        try {
-          final position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.high,
-            ),
-          ).timeout(const Duration(seconds: 3));
+      final currentPt = _densePath[_stepIndex % _densePath.length];
+      final nextPt = _densePath[(_stepIndex + 1) % _densePath.length];
+      _stepIndex = (_stepIndex + 1) % _densePath.length;
 
-          lat = position.latitude;
-          lng = position.longitude;
-          speed = position.speed * 3.6;
-          bearing = position.heading;
-          readRealGpsSuccess = true;
-        } catch (_) {
-          readRealGpsSuccess = false;
-        }
-      }
+      final lat = currentPt.latitude;
+      final lng = currentPt.longitude;
 
-      // Fallback to route simulation telemetry if real GPS is unavailable
-      if (!readRealGpsSuccess) {
-        final currentPt = simWaypoints[_simIndex % simWaypoints.length];
-        _simIndex = (_simIndex + 1) % simWaypoints.length;
-        final nextPt = simWaypoints[_simIndex % simWaypoints.length];
+      const Distance distance = Distance();
+      double bearing = distance.bearing(currentPt, nextPt);
+      if (bearing < 0) bearing += 360;
 
-        lat = currentPt.latitude;
-        lng = currentPt.longitude;
-        const Distance distance = Distance();
-        bearing = distance.bearing(currentPt, nextPt);
-        if (bearing < 0) bearing += 360;
-        speed = 48.0 + (_simIndex * 3) % 15; // 48-63 km/h
-      }
+      final speed = 45.0 + (_stepIndex % 12); // Smooth 45-57 km/h driving speed
 
       final ping = LocationPing(
         busId: busId,
@@ -122,7 +101,13 @@ class LocationService {
       } catch (_) {}
 
       await flushQueue();
-    });
+    }
+
+    // Immediately emit first location ping (0ms delay)
+    await emitTick();
+
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(_pingInterval, (_) => emitTick());
   }
 
   Future<void> flushQueue() async {

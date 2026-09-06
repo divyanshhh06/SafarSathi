@@ -76,7 +76,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
   Future<void> _loadApiRoutes() async {
     try {
       final routes = await _apiService.getRoutes();
-      if (mounted) {
+      if (mounted && routes.isNotEmpty) {
         setState(() {
           _apiRoutes = routes;
           _applyRouteSort();
@@ -84,8 +84,10 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
         if (widget.initialRouteId != null) {
           final match = routes.firstWhereOrNull((r) => r.id == widget.initialRouteId);
           if (match != null) {
-            _onRouteSelected(match);
+            _onRouteSelected(match, openSheet: true);
           }
+        } else if (routes.isNotEmpty) {
+          _onRouteSelected(routes.first, openSheet: false);
         }
       }
     } catch (e) {
@@ -130,7 +132,7 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
     super.dispose();
   }
 
-  Future<void> _onRouteSelected(BusRoute route) async {
+  Future<void> _onRouteSelected(BusRoute route, {bool openSheet = true}) async {
     _socketService.joinRoute(route.id);
 
     final roadPoints = await RoadRoutingService.getRoadPath(route.path);
@@ -152,10 +154,10 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
       _mapController.move(targetCenter, 12);
     }
 
+    if (!openSheet || !mounted) return;
+
     final busesOnRoute =
         _liveBuses.where((b) => b.routeId == route.id).toList();
-
-    if (!mounted) return;
 
     RouteSheet.show(
       context,

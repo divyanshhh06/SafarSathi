@@ -67,7 +67,13 @@ class _CommuterHomeScreenState extends State<CommuterHomeScreen> {
               : buses.first;
           _hasInitialCentered = true;
           _selectedBus = targetBus;
-          _mapController.move(targetBus.position, 14);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              try {
+                _mapController.move(targetBus.position, 14);
+              } catch (_) {}
+            }
+          });
         }
       }
     });

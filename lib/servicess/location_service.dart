@@ -67,10 +67,7 @@ class LocationService {
             LatLng(30.900965, 75.8572758),  // Ludhiana Bus Stand
           ];
 
-    // Fetch actual OSRM road geometry if available
-    final List<LatLng> roadWaypoints = await RoadRoutingService.getRoadPath(baseWaypoints);
-
-    _densePath = _generateDensePath(roadWaypoints, pointsPerSegment: 15);
+    _densePath = _generateDensePath(baseWaypoints, pointsPerSegment: 15);
     _stepIndex = 0;
 
     Future<void> emitTick() async {
@@ -112,6 +109,13 @@ class LocationService {
 
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(_pingInterval, (_) => emitTick());
+
+    // Asynchronously upgrade dense path with OSRM road geometry
+    RoadRoutingService.getRoadPath(baseWaypoints).then((roadWaypoints) {
+      if (roadWaypoints.isNotEmpty && roadWaypoints.length >= 2) {
+        _densePath = _generateDensePath(roadWaypoints, pointsPerSegment: 15);
+      }
+    }).catchError((_) {});
   }
 
   Future<void> flushQueue() async {

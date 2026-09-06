@@ -207,6 +207,27 @@ class SocketService {
   /// Sends a single GPS reading from the driver app to BE-1's compressed live feed ('d_up').
   /// Compressed Payload format expected by server.js: [lat, lng, busId, speed, routeId]
   Future<bool> reportDriverLocation(Map<String, dynamic> pingJson) async {
+    final busId = pingJson['busId'].toString();
+    final routeId = pingJson['routeId'].toString();
+    final lat = (pingJson['lat'] as num).toDouble();
+    final lng = (pingJson['lng'] as num).toDouble();
+    final speed = (pingJson['speed'] as num).toDouble();
+    final bearing = (pingJson['bearing'] as num?)?.toDouble() ?? 0.0;
+
+    final existing = _busMap[busId];
+    _busMap[busId] = Bus(
+      busId: busId,
+      routeId: routeId,
+      position: LatLng(lat, lng),
+      speedKmh: speed,
+      bearing: bearing,
+      occupancy: existing?.occupancy ?? OccupancyLevel.seatsAvailable,
+    );
+
+    if (!_controller.isClosed) {
+      _controller.add(_busMap.values.toList());
+    }
+
     if (_socket == null || _socket?.connected != true) {
       connect();
       int waitMs = 0;
@@ -221,11 +242,11 @@ class SocketService {
 
     try {
       final compressedPayload = [
-        pingJson['lat'],
-        pingJson['lng'],
-        pingJson['busId'].toString(),
-        pingJson['speed'],
-        pingJson['routeId'].toString(),
+        lat,
+        lng,
+        busId,
+        speed,
+        routeId,
       ];
 
       _socket!.emit('d_up', compressedPayload);

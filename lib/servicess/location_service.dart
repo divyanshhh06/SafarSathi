@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import '../modelss/location_ping.dart';
 import 'socket_service.dart';
+import 'road_routing_service.dart';
 
 /// Pure Route-Driven Telemetry Service for Driver Trips.
 /// Operates without physical device GPS permissions — when the driver selects a route
@@ -25,7 +26,7 @@ class LocationService {
       : _socketService = socketService ?? SocketService();
 
   /// Generates a smooth, dense path of points between route waypoints for realistic driving animation.
-  List<LatLng> _generateDensePath(List<LatLng> waypoints, {int pointsPerSegment = 20}) {
+  List<LatLng> _generateDensePath(List<LatLng> waypoints, {int pointsPerSegment = 15}) {
     if (waypoints.isEmpty) return [];
     if (waypoints.length == 1) return waypoints;
 
@@ -66,7 +67,10 @@ class LocationService {
             LatLng(30.900965, 75.8572758),  // Ludhiana Bus Stand
           ];
 
-    _densePath = _generateDensePath(baseWaypoints, pointsPerSegment: 25);
+    // Fetch actual OSRM road geometry if available
+    final List<LatLng> roadWaypoints = await RoadRoutingService.getRoadPath(baseWaypoints);
+
+    _densePath = _generateDensePath(roadWaypoints, pointsPerSegment: 15);
     _stepIndex = 0;
 
     Future<void> emitTick() async {

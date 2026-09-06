@@ -21,12 +21,16 @@ class SocketService {
   /// Toggle to switch between local laptop backend and live cloud backend
   static const bool useLocalBackend = true;
 
+  /// Toggle to switch between Physical Phone Wi-Fi testing and Android Emulator
+  static const bool usePhysicalDevice = true;
+
   /// Your laptop's local Wi-Fi IP address for testing on physical mobile phones.
-  static String physicalDeviceHostIp = '10.115.46.238';
+  static String physicalDeviceHostIp = '172.25.224.133';
 
   static String get backendUrl {
     if (!useLocalBackend) return 'https://safarsathi-backend-eteo.onrender.com';
     if (kIsWeb) return 'http://localhost:3000';
+    if (usePhysicalDevice) return 'http://$physicalDeviceHostIp:3000';
     if (defaultTargetPlatform == TargetPlatform.android) {
       // 10.0.2.2 connects Android Emulator to host machine's localhost:3000
       return 'http://10.0.2.2:3000';
